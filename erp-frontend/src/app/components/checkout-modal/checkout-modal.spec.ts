@@ -1,0 +1,22 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { CheckoutModalComponent } from './checkout-modal';
+
+describe('CheckoutModal', () => {
+  let component: CheckoutModalComponent;
+  let fixture: ComponentFixture<CheckoutModalComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CheckoutModalComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(CheckoutModalComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

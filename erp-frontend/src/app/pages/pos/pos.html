@@ -1,0 +1,65 @@
+<div class="pos-layout">
+    <section class="product-section">
+        <h2>สินค้าทั้งหมด</h2>
+
+        @if (isLoadingProducts === true) {
+        <div class="loading-state" style="text-align: center; padding: 2rem;">
+            ⏳ กำลังเชื่อมต่อฐานข้อมูล...
+        </div>
+        } @else {
+        <div class="product-grid">
+            @for (item of products; track item.id) {
+            <div class="product-card" (click)="addProduct(item)">
+                <img [src]="item.image" [alt]="item.name">
+                <div class="product-info">
+                    <h3>{{ item.name }}</h3>
+                    <p class="price">฿{{ item.price }}</p>
+                    <p class="stock">คงเหลือ: {{ item.quantity }}</p>
+                </div>
+            </div>
+            } @empty {
+            <p>ไม่มีสินค้าในระบบ</p>
+            }
+        </div>
+        }
+    </section>
+
+
+    <section class="cart-section">
+        <h2>ตะกร้าสินค้า ({{ cart.length }})</h2>
+        <div class="barcode-scanner">
+            <input type="text" #barcodeInput (keyup.enter)="onScanBarcode(barcodeInput.value); barcodeInput.value=''"
+                placeholder="สแกนบาร์โค้ด หรือพิมพ์รหัส" autofocus>
+        </div>
+        <div class="cart-list">
+            @for (cartItem of cart; track cartItem.id) {
+            <div class="cart-item">
+                <img [src]="cartItem.image" [alt]="cartItem.name">
+                <span>{{ cartItem.name }} (x{{ cartItem.selectedQuantity }})</span>
+                <span class="item-price">฿{{ cartItem.price * cartItem.selectedQuantity | number:'1.2-2' }}</span>
+
+                <div class="item-controls">
+                    <button class="btn-qty" (click)="decreaseQuantity(cartItem.id)">-</button>
+                    <input type="number" min="1" class="qty-text" [(ngModel)]="cartItem.selectedQuantity">
+                    <button class="btn-qty" (click)="increaseQuantity(cartItem.id)">+</button>
+                    <button class="btn-delete" (click)="removeItem(cartItem.id)">🗑️</button>
+                </div>
+            </div>
+            } @empty {
+            <p class="empty-cart">ยังไม่มีสินค้าในตะกร้า ลองกดเลือกสินค้าดูสิ!</p>
+            }
+        </div>
+
+        <div class="cart-summary">
+            <p class="total">รวมทั้งหมด: ฿{{ total | number:'1.2-2' }}</p>
+            <button class="checkout-btn " (click)="openCheckout()">ชำระเงิน</button>
+        </div>
+    </section>
+</div>
+
+<app-checkout-modal [isOpen]="isCheckoutOpen" [total]="total" [isProcessing]="isSubmittingOrder"
+    (canceled)="isCheckoutOpen = false" (confirmed)="processPayment($event)">
+</app-checkout-modal>
+
+<app-alert-modal [isOpen]="isAlertOpen" [message]="alertMessage" [type]="alertType" (closed)="isAlertOpen = false">
+</app-alert-modal>

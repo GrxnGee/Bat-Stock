@@ -1,0 +1,39 @@
+<div class="container mt-4">
+    <h2>📜 ประวัติการขาย (Sales History)</h2>
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>เลขที่บิล</th>
+                <th>วันที่-เวลา</th>
+                <th>ยอดรวม (บาท)</th>
+                <th>วิธีชำระเงิน</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @for (order of orders; track order.id) {
+            <tr>
+                <td>{{ order.orderNumber }}</td>
+                <td>{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ order.totalAmount | number:'1.2-2' }}</td>
+                <td>{{ order.paymentMethod }}</td>
+                <td>
+                    <button class="btn btn-info btn-sm" (click)="openOrderDetails(order)">ดูรายละเอียด</button>
+                </td>
+            </tr>
+            } @empty {
+            <tr>
+                <td colspan="5" style="text-align: center;">ไม่มีประวัติการขายในระบบ</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<app-sale-history-detail 
+  [isOpen]="isDetailModalOpen" 
+  [order]="selectedOrder" 
+  (closed)="isDetailModalOpen = false">
+</app-sale-history-detail>

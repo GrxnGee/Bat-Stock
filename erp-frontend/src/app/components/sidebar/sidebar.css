@@ -1,0 +1,106 @@
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #000000;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+
+  &.collapsed {
+    width: 80px;
+
+    .sidebar-header {
+      justify-content: center;
+      flex-direction: column;
+      padding: 15px 0;
+      gap: 15px;
+      
+      .brand h2 { font-size: 24px; }
+    }
+
+    .nav-links a {
+      justify-content: center;
+      padding: 12px;
+      
+      .icon { margin-right: 0; }
+    }
+  }
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  
+  .brand h2 { 
+    margin: 0; 
+    font-size: 20px; 
+    color: #93c5fd;
+    white-space: nowrap;
+  }
+
+  .toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: background 0.2s, transform 0.2s;
+
+    &:hover { background: rgba(255, 255, 255, 0.2); }
+    &:active { transform: scale(0.9); }
+  }
+}
+
+.nav-links {
+  list-style: none;
+  padding: 15px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  a {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 15px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    .icon {
+      font-size: 20px;
+      margin-right: 12px;
+      transition: margin 0.3s;
+    }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    &.active {
+      background-color: #3b82f6;
+      background-image: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+  }
+}

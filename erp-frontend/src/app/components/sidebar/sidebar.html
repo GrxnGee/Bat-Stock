@@ -1,0 +1,30 @@
+
+<nav class="sidebar" [class.collapsed]="isCollapsed">
+  
+  <div class="sidebar-header">
+    <div class="brand">
+      <h2>🏪 <span *ngIf="!isCollapsed">My Store</span></h2>
+    </div>
+    
+
+    <button class="toggle-btn" (click)="toggleSidebar()">
+      <span *ngIf="!isCollapsed">«</span>
+      <span *ngIf="isCollapsed">»</span>
+    </button>
+  </div>
+  
+  <ul class="nav-links">
+    <li>
+      <a routerLink="/pos" routerLinkActive="active" [title]="isCollapsed ? 'ขายสินค้า (POS)' : ''">
+        <span class="icon">🛒</span>
+        <span class="text" *ngIf="!isCollapsed">ขายสินค้า (POS)</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/history" routerLinkActive="active" [title]="isCollapsed ? 'ประวัติการขาย' : ''">
+        <span class="icon">📜</span>
+        <span class="text" *ngIf="!isCollapsed">ประวัติการขาย</span>
+      </a>
+    </li>
+  </ul>
+</nav>

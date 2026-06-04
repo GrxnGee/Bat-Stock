@@ -1,0 +1,48 @@
+@if (isOpen) {
+<div class="modal-overlay">
+    <div class="modal-box">
+        <h2>💵 รับชำระเงิน</h2>
+
+        <div class="summary-box">
+            <p>ยอดรวมที่ต้องชำระ</p>
+            <h3 class="total-text">฿{{ total | number:'1.2-2' }}</h3>
+        </div>
+
+        <div class="payment-method-selector">
+            <button [class.active]="paymentMethod === 'CASH'" (click)="paymentMethod = 'CASH'">
+                💵 เงินสด
+            </button>
+            <button [class.active]="paymentMethod === 'TRANSFER'" (click)="paymentMethod = 'TRANSFER'">
+                📱 โอนเงิน
+            </button>
+        </div>
+
+        @if (paymentMethod === 'CASH') {
+        <div class="input-group">
+            <label>รับเงินจากลูกค้า (บาท):</label>
+            <input type="number" [(ngModel)]="receivedAmount" placeholder="กรอกจำนวนเงิน">
+        </div>
+
+        <div class="change-box">
+            <p>เงินทอน:</p>
+            <h3 [class.error-text]="changeAmount < 0">
+                ฿{{ changeAmount < 0 ? 0 : changeAmount | number:'1.2-2' }} </h3>
+        </div>
+        }
+
+        @if (paymentMethod === 'TRANSFER') {
+        <div class="input-group">
+            <label>หมายเลขอ้างอิง / เลขที่สลิป:</label>
+            <input type="text" [(ngModel)]="slipReference" placeholder="เช่น 6 หลักสุดท้ายของสลิป">
+        </div>
+        }
+
+        <div class="modal-actions">
+            <button class="btn-cancel" (click)="closeCheckout()" >ยกเลิก</button>
+            <button class="btn-confirm" (click)="confirmPayment()" [disabled]="isProcessing">
+                {{ isProcessing ? 'กำลังบันทึก...' : 'ยืนยันรับเงิน' }}
+            </button>
+        </div>
+    </div>
+</div>
+}

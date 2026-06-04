@@ -1,0 +1,48 @@
+@if (isOpen) {
+  <div class="modal-overlay" (click)="closeModal()">
+    
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>🧾 รายละเอียดบิล: {{ order?.orderNumber }}</h3>
+        <button class="close-btn" (click)="closeModal()">✖</button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>วันที่:</strong> {{ order?.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p><strong >วิธีชำระเงิน: </strong> <span [style.color]="order?.paymentMethod === 'CASH' ? '#10b981' : '#3b82f6'">{{ order?.paymentMethod }}</span></p>
+
+        <table class="table table-sm mt-3">
+          <thead class="table-light">
+            <tr>
+              <th>รหัสสินค้า</th>
+              <th style="text-align: right;">ราคา/หน่วย</th>
+              <th style="text-align: right;">จำนวน</th>
+              <th style="text-align: right;">รวม</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of order?.items; track item.id) {
+              <tr>
+                <td>{{ item.productId }}</td>
+                <td style="text-align: right;">฿{{ item.price | number:'1.2-2' }}</td>
+                <td style="text-align: right;">x{{ item.quantity }}</td>
+                <td style="text-align: right;">฿{{ (item.price * item.quantity) | number:'1.2-2' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" style="text-align: center;">ไม่พบรายการสินค้า</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <h4 style="margin: 0;">ยอดรวมทั้งสิ้น: 
+          <span style="color: #10b981;">฿{{ order?.totalAmount | number:'1.2-2' }}</span>
+        </h4>
+      </div>
+    </div>
+    
+  </div>
+}
