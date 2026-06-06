@@ -1,0 +1,85 @@
+<div class="admin-layout">
+    <div class="header-section">
+        <h2>📦 ระบบปรับปรุงสต็อก (Stock Adjustment)</h2>
+        <p>สำหรับบันทึกสินค้าชำรุด สูญหาย หรือผลการตรวจนับประจำเดือน</p>
+    </div>
+
+    <div class="adjustment-container">
+        <div class="card product-search-card">
+            <h3>1. เลือกสินค้า</h3>
+            <div class="search-box">
+                <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="searchProduct()"
+                    placeholder="สแกนบาร์โค้ด หรือพิมพ์ชื่อสินค้า...">
+                <button class="btn-search" (click)="searchProduct()">ค้นหา</button>
+            </div>
+
+            @if (selectedProduct) {
+            <div class="selected-product-info">
+                <div class="info-badge">สต็อกปัจจุบัน</div>
+                <div class="qty-display">{{ selectedProduct.quantity }}</div>
+                <div class="product-details">
+                    <p><strong>รหัส:</strong> {{ selectedProduct.barcode }}</p>
+                    <p><strong>ชื่อสินค้า:</strong> {{ selectedProduct.name }}</p>
+                    <p><strong>ต้นทุน (บัญชี):</strong> ฿{{ selectedProduct.costUnit | number:'1.2-2' }} / ชิ้น</p>
+                    <p><strong>ราคาขาย (บาท):</strong> ฿{{ selectedProduct.price | number:'1.2-2' }}</p>
+                </div>
+            </div>
+            } @else {
+            <div class="empty-state">
+                <p>กรุณาค้นหาและเลือกสินค้าที่ต้องการปรับปรุง</p>
+            </div>
+            }
+        </div>
+
+        <div class="card form-card" [class.disabled]="!selectedProduct">
+            <h3>2. ระบุรายละเอียดการปรับปรุง</h3>
+
+            <div class="form-group row">
+                <label>การดำเนินการ:</label>
+                <div class="radio-group">
+                    <label class="radio-label out">
+                        <input type="radio" name="adjustType" value="OUT" [(ngModel)]="adjustType"
+                            (change)="onAdjustTypeChange()">
+                        🔻 ปรับลดสต็อก (หักออก)
+                    </label>
+                    <label class="radio-label in">
+                        <input type="radio" name="adjustType" value="IN" [(ngModel)]="adjustType"
+                            (change)="onAdjustTypeChange()">
+                        🔺 ปรับเพิ่มสต็อก (รับเข้า)
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>จำนวนที่ต้องการปรับ:</label>
+                <input type="number" min="1" class="qty-input" [(ngModel)]="adjustQty">
+            </div>
+
+            <div class="form-group">
+                <label>เหตุผล (อ้างอิงบัญชี):</label>
+                <select class="form-control" [(ngModel)]="adjustReason">
+                    @for (reason of getFilteredReasons(); track reason.code) {
+                    <option [value]="reason.code">{{ reason.label }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>หมายเหตุ / หมายเลขอ้างอิง (ถ้ามี):</label>
+                <textarea class="form-control" rows="3" [(ngModel)]="adjustNote"
+                    placeholder="เช่น แตกหักระหว่างขนส่งโดย บ.ขนส่ง A..."></textarea>
+            </div>
+
+            <button class="btn-submit" [disabled]="!selectedProduct" (click)="submitAdjustment()">
+                💾 บันทึกและปรับปรุงสต็อก
+            </button>
+        </div>
+    </div>
+</div>
+
+<app-alert-modal 
+        [isOpen]="isAlertOpen" 
+        [message]="alertMessage" 
+        [type]="alertType" 
+        (closed)="isAlertOpen = false">
+    </app-alert-modal>

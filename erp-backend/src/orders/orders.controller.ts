@@ -31,4 +31,14 @@ export class OrdersController {
   remove(@Param('id') id: string) {
     return this.ordersService.remove(+id);
   }
+
+  @Post('promptpay')
+  createPromptpayQr(@Body('amount') amount: number) {
+    return this.ordersService.createPromptPayCharge(amount);
+  }
+
+  @Get('promptpay/:chargeId')
+  checkPaymentStatus(@Param('chargeId') chargeId: string) {
+    return this.ordersService.checkChargeStatus(chargeId);
+  }
 }

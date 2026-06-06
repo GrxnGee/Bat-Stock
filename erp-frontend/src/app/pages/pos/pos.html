@@ -1,65 +1,155 @@
-<div class="pos-layout">
-    <section class="product-section">
-        <h2>สินค้าทั้งหมด</h2>
+<div id="receipt-slip" class="print-only">
+    <div class="receipt-header">
+        <h3>บริษัท GrxnGee Bat Stock จำกัด</h3>
+        <p>*ที่อยู่ตามความเป็นจริงของร้านค้า*</p>
+        <p>เลขประจำตัวผู้เสียภาษี *ตามผู้เสียจริงของร้านค้า*</p>
+        <p>(สำนักงานใหญ่)</p>
+        <p>https://github.com/GrxnGee</p>
+        <br>
+        <h4>ใบเสร็จรับเงิน/ใบกำกับภาษีแบบย่อ</h4>
+    </div>
 
-        @if (isLoadingProducts === true) {
-        <div class="loading-state" style="text-align: center; padding: 2rem;">
-            ⏳ กำลังเชื่อมต่อฐานข้อมูล...
+    <div class="receipt-info">
+        <div class="info-row">
+            <span class="label">เลขที่เอกสาร:</span>
+            <span>{{ generateReceiptNumber() }}</span>
         </div>
-        } @else {
-        <div class="product-grid">
-            @for (item of products; track item.id) {
-            <div class="product-card" (click)="addProduct(item)">
-                <img [src]="item.image" [alt]="item.name">
-                <div class="product-info">
-                    <h3>{{ item.name }}</h3>
-                    <p class="price">฿{{ item.price }}</p>
-                    <p class="stock">คงเหลือ: {{ item.quantity }}</p>
-                </div>
+        <div class="info-row">
+            <span class="label">วันที่ขาย:</span>
+            <span>{{ today | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">พนักงานขาย:</span>
+            <span>แอดมิน</span>
+        </div>
+    </div>
+
+    <table class="receipt-items">
+        <thead>
+            <tr class="dashed-border">
+                <th style="text-align: left;">รายการ</th>
+                <th style="text-align: right; width: 60px;">หน่วยละ</th>
+                <th style="text-align: right; width: 70px;">รวมเงิน</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (item of cart; track item.id) {
+            <tr>
+                <td colspan="3" class="item-name">{{ item.selectedQuantity }} {{ item.name }}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="text-right">{{ item.price | number:'1.2-2' }}</td>
+                <td class="text-right">{{ (item.price * item.selectedQuantity) | number:'1.2-2' }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="receipt-summary">
+        <div class="dashed-border-bottom" style="padding-bottom: 4px; margin-bottom: 4px;">
+            <span>รายการ: {{ cart.length }}</span>
+            <span style="margin-left: 10px;">จำนวนชิ้น: {{ getTotalQuantity() }}</span>
+        </div>
+        <div class="summary-row">
+            <span>รวมเป็นเงิน</span>
+            <span>{{ total | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-row">
+            <span>ส่วนลด</span>
+            <span>0.00</span>
+        </div>
+        <div class="summary-row total-row">
+            <strong>รวมทั้งสิ้น</strong>
+            <strong>{{ total | number:'1.2-2' }}</strong>
+        </div>
+
+        <div class="dashed-border-top dashed-border-bottom" style="padding: 4px 0; margin: 4px 0;">
+            <div class="summary-row">
+                <span>รวมมูลค่าสินค้า</span>
+                <span>{{ (total * 100 / 107) | number:'1.2-2' }}</span>
             </div>
-            } @empty {
-            <p>ไม่มีสินค้าในระบบ</p>
+            <div class="summary-row">
+                <span>ภาษีมูลค่าเพิ่ม</span>
+                <span>{{ (total - (total * 100 / 107)) | number:'1.2-2' }}</span>
+            </div>
+        </div>
+
+        <div class="payment-info">
+            @if (lastPaymentData?.method === 'CASH') {
+            <span>เงินสด {{ lastPaymentData?.receivedAmount | number:'1.2-2' }}</span>
+            <span>เงินทอน {{ lastPaymentData?.changeAmount | number:'1.2-2' }}</span>
+            } @else {
+            <span>โอนเงิน {{ total | number:'1.2-2' }}</span>
+            <span>เงินทอน 0.00</span>
             }
         </div>
-        }
-    </section>
+    </div>
 
-
-    <section class="cart-section">
-        <h2>ตะกร้าสินค้า ({{ cart.length }})</h2>
-        <div class="barcode-scanner">
-            <input type="text" #barcodeInput (keyup.enter)="onScanBarcode(barcodeInput.value); barcodeInput.value=''"
-                placeholder="สแกนบาร์โค้ด หรือพิมพ์รหัส" autofocus>
-        </div>
-        <div class="cart-list">
-            @for (cartItem of cart; track cartItem.id) {
-            <div class="cart-item">
-                <img [src]="cartItem.image" [alt]="cartItem.name">
-                <span>{{ cartItem.name }} (x{{ cartItem.selectedQuantity }})</span>
-                <span class="item-price">฿{{ cartItem.price * cartItem.selectedQuantity | number:'1.2-2' }}</span>
-
-                <div class="item-controls">
-                    <button class="btn-qty" (click)="decreaseQuantity(cartItem.id)">-</button>
-                    <input type="number" min="1" class="qty-text" [(ngModel)]="cartItem.selectedQuantity">
-                    <button class="btn-qty" (click)="increaseQuantity(cartItem.id)">+</button>
-                    <button class="btn-delete" (click)="removeItem(cartItem.id)">🗑️</button>
-                </div>
-            </div>
-            } @empty {
-            <p class="empty-cart">ยังไม่มีสินค้าในตะกร้า ลองกดเลือกสินค้าดูสิ!</p>
-            }
-        </div>
-
-        <div class="cart-summary">
-            <p class="total">รวมทั้งหมด: ฿{{ total | number:'1.2-2' }}</p>
-            <button class="checkout-btn " (click)="openCheckout()">ชำระเงิน</button>
-        </div>
-    </section>
+    <div class="receipt-footer">
+        <p>ขอบคุณที่ใช้บริการ</p>
+    </div>
 </div>
 
-<app-checkout-modal [isOpen]="isCheckoutOpen" [total]="total" [isProcessing]="isSubmittingOrder"
-    (canceled)="isCheckoutOpen = false" (confirmed)="processPayment($event)">
-</app-checkout-modal>
+<div class="print-hidden">
+    <div class="pos-layout">
+        <section class="product-section">
+            <h2>สินค้าทั้งหมด</h2>
+            @if (isLoadingProducts === true) {
+            <div class="loading-state" style="text-align: center; padding: 2rem;">⏳ กำลังเชื่อมต่อฐานข้อมูล...</div>
+            } @else {
+            <div class="product-grid">
+                @for (item of products; track item.id) {
+                <div class="product-card" [class.out-of-stock]="item.quantity <= 0"
+                    (click)="item.quantity > 0 ? addProduct(item) : showAlert('warning', 'สินค้านี้หมดสต็อกแล้ว!')">
+                    <img [src]="item.image" [alt]="item.name">
+                    <div class="product-info">
+                        <h3>{{ item.name }}</h3>
+                        <p class="price">฿{{ item.price }}</p>
+                        @if(item.quantity > 0) { <p class="stock">คงเหลือ: {{ item.quantity }}</p> }
+                        @else { <p class="stock out-of-stock-text">สินค้าหมด</p> }
+                    </div>
+                </div>
+                } @empty { <p>ไม่มีสินค้าในระบบ</p> }
+            </div>
+            }
+        </section>
 
-<app-alert-modal [isOpen]="isAlertOpen" [message]="alertMessage" [type]="alertType" (closed)="isAlertOpen = false">
-</app-alert-modal>
+        <section class="cart-section">
+            <h2>ตะกร้าสินค้า ({{ cart.length }})</h2>
+            <div class="barcode-scanner">
+                <input type="text" #barcodeInput
+                    (keyup.enter)="onScanBarcode(barcodeInput.value); barcodeInput.value=''"
+                    placeholder="สแกนบาร์โค้ด หรือพิมพ์รหัส" autofocus>
+            </div>
+            <div class="cart-list">
+                @for (cartItem of cart; track cartItem.id) {
+                <div class="cart-item">
+                    <img [src]="cartItem.image" [alt]="cartItem.name">
+                    <span>{{ cartItem.name }} (x{{ cartItem.selectedQuantity }})</span>
+                    <span class="item-price">฿{{ cartItem.price * cartItem.selectedQuantity | number:'1.2-2' }}</span>
+                    <div class="item-controls">
+                        <button class="btn-qty" (click)="decreaseQuantity(cartItem.id)">-</button>
+                        <input type="number" min="1" class="qty-text" [(ngModel)]="cartItem.selectedQuantity">
+                        <button class="btn-qty" (click)="increaseQuantity(cartItem.id)">+</button>
+                        <button class="btn-delete" (click)="removeItem(cartItem.id)">🗑️</button>
+                    </div>
+                </div>
+                } @empty {
+                <p class="empty-cart">ยังไม่มีสินค้าในตะกร้า ลองกดเลือกสินค้าดูสิ!</p>
+                }
+            </div>
+            <div class="cart-summary">
+                <p class="total">รวมทั้งหมด: ฿{{ total | number:'1.2-2' }}</p>
+                <button class="checkout-btn" (click)="openCheckout()">ชำระเงิน</button>
+            </div>
+        </section>
+    </div>
+
+    <app-checkout-modal [isOpen]="isCheckoutOpen" [total]="total" [isProcessing]="isSubmittingOrder"
+        (canceled)="isCheckoutOpen = false" (confirmed)="processPayment($event)">
+    </app-checkout-modal>
+
+    <app-alert-modal [isOpen]="isAlertOpen" [message]="alertMessage" [type]="alertType" (closed)="isAlertOpen = false">
+    </app-alert-modal>
+</div>

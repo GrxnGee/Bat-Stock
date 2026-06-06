@@ -1,28 +1,89 @@
 .modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); display: flex;
-  justify-content: center; align-items: center; z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 
   .modal-box {
-    background: white; padding: 32px; border-radius: 16px; width: 400px;
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    width: 400px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
     &.alert-box {
-      width: 350px; text-align: center;
-      
-      h2 { margin-top: 0; text-align: center; color: #1f2937; }
-      .alert-icon { font-size: 3.5rem; margin-bottom: 16px; }
-      p { font-size: 1.1rem; font-weight: bold; color: #ff0606; margin-bottom: 24px; line-height: 1.5; }
-      
+      width: 350px;
+      text-align: center;
+
+      h2 {
+        margin-top: 0;
+        text-align: center;
+        color: #1f2937;
+      }
+
+      .alert-icon {
+        font-size: 3.5rem;
+        margin-bottom: 16px;
+      }
+
+      p {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #ff0606;
+        margin-bottom: 24px;
+        line-height: 1.5;
+      }
+
       .modal-actions {
-        display: flex; gap: 12px; justify-content: center; margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 24px;
+
         button {
-          flex: 0.5; padding: 16px; font-size: 1.1rem; font-weight: bold;
-          border: none; border-radius: 8px; cursor: pointer; transition: 0.2s;
+          flex: 0.5;
+          padding: 16px;
+          font-size: 1.1rem;
+          font-weight: bold;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: 0.2s;
         }
+
         .btn-confirm {
-          background-color: #10b981; color: white;
-          &:hover { background-color: #059669; }
+          background-color: #10b981;
+          color: white;
+
+          &:hover {
+            background-color: #059669;
+          }
+        }
+
+        .btn-cancel {
+          background-color: #e5e7eb;
+          color: #4b5563;
+
+          &:hover {
+            background-color: #057818;
+            color: #ffffff;
+          }
+        }
+
+        .btn-danger {
+          background-color: #e5e7eb;
+          color: #000000;
+
+          &:hover {
+            background-color: #ff0d0d;
+            color: #ffffff;
+          }
         }
       }
     }

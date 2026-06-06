@@ -24,10 +24,12 @@ export class CartService {
   products: PosProduct[] = [];
   cart: CartItem[] = [];
 
+  private apiUrl = environment.apiUrl;
+
   constructor(private http: HttpClient) {}
 
   fetchProducts(): Observable<PosProduct[]> {
-    return this.http.get<PosProduct[]>(`${environment.apiUrl}/products`);
+    return this.http.get<PosProduct[]>(this.apiUrl+`/products`);
   }
 
   submitOrder(paymentData: PaymentData): Observable<any> {
@@ -41,7 +43,7 @@ export class CartService {
       totalAmount: this.total
     };
 
-    return this.http.post(`${environment.apiUrl}/orders`, orderPayload);
+    return this.http.post(this.apiUrl+`/orders`, orderPayload);
   }
 
   addProduct(product: PosProduct) {

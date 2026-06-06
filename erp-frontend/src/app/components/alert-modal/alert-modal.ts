@@ -13,10 +13,15 @@ export class AlertModalComponent {
   @Input() isOpen: boolean = false;
   @Input() type: string = '';
   @Input() message: string = '';
-  
+
+  @Output() confirmed = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();
 
   closeAlert(): void {
     this.closed.emit();
+  }
+
+  confirmAction(): void {
+    this.confirmed.emit();
   }
 }

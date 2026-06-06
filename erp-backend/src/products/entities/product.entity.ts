@@ -22,5 +22,8 @@ export class Product {
 
   @Column()
   image: string;
+
+  @Column('decimal')
+  costUnit: number;
   
 }

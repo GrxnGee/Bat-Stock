@@ -24,10 +24,15 @@ export class Poscomponent implements OnInit {
   isAlertOpen: boolean = false;
   alertMessage: string = '';
   alertType: string = '';
+
   barcodeInput: string = '';
+
+  today: Date = new Date();
+  lastPaymentData: PaymentData | null = null
 
   isLoadingProducts: boolean = false;
   isSubmittingOrder: boolean = false;
+
   ngOnInit(): void {
     this.loadProducts();
   }
@@ -82,6 +87,22 @@ export class Poscomponent implements OnInit {
     }
   }
 
+  getTotalQuantity(): number {
+    return this.cart.reduce((sum, item) => sum + item.selectedQuantity, 0);
+  }
+
+  generateReceiptNumber(): string {
+    const d = this.today;
+    const dateStr = `${d.getFullYear()}${(d.getMonth() + 1).toString().padStart(2, '0')}${d.getDate().toString().padStart(2, '0')}`;
+    return `ABB-${dateStr}-0001`;
+  }
+
+  printReceipt() {
+    this.today = new Date();
+    this.cdr.detectChanges();
+    window.print();
+  }
+
   processPayment(data: PaymentData): void {
     if (data.receivedAmount < this.total && data.method === 'CASH') {
       this.showAlert('payment-failure', 'กรุณาใส่จำนวนเงินที่รับมาให้ครบถ้วน');
@@ -92,26 +113,39 @@ export class Poscomponent implements OnInit {
       return;
     }
 
+    const outOfStockItems = this.cart.filter(item => item.quantity < item.selectedQuantity);
+    if (outOfStockItems.length > 0) {
+      const itemNames = outOfStockItems.map(i => i.name).join(', ');
+      this.showAlert('warning', `สต็อกสินค้าไม่เพียงพอ: ${itemNames}`);
+      return; 
+    }
+
     this.isSubmittingOrder = true;
+    this.lastPaymentData = data;
 
     this.cartService.submitOrder(data).subscribe({
       next: response => {
+
         this.isCheckoutOpen = false;
-        this.showAlert('payment-success', 'ชำระยอดเงิน ' + this.total + ' บาท เรียบร้อยแล้ว');
-        this.cartService.clearCart();
         this.isSubmittingOrder = false;
-        this.loadProducts();
         this.cdr.detectChanges();
+
+        setTimeout(() => {
+          this.printReceipt();
+
+          this.cartService.clearCart();
+          this.loadProducts();
+          this.showAlert('payment-success', 'ชำระยอดเงิน ' + this.total + ' บาท เรียบร้อยแล้ว');
+          this.cdr.detectChanges();
+        }, 500);
       },
       error: err => {
         console.error('บันทึกออเดอร์ไม่สำเร็จ', err);
         this.showAlert('payment-failure', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
         this.isSubmittingOrder = false;
-
         this.cdr.detectChanges();
       }
     });
   }
 
 }
-

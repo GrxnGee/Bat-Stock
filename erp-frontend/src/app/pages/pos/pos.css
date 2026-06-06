@@ -1,18 +1,15 @@
-/* CSS สำหรับ Layout หลัก */
+/* POS Layout */
 .pos-layout {
   display: flex;
   height: 100vh;
   background-color: #f3f4f6;
 
-  /* --- สินค้า --- */
   .product-section {
     flex: 1;
     padding: 24px;
     overflow-y: auto;
 
-    h2 {
-      margin-top: 0;
-    }
+    h2 { margin-top: 0; }
 
     .product-grid {
       display: grid;
@@ -44,28 +41,13 @@
           margin-bottom: 12px;
         }
 
-        h3 {
-          margin: 0 0 8px 0;
-          font-size: 1.1rem;
-        }
-
-        .price {
-          color: #2563eb;
-          font-weight: bold;
-          font-size: 1.2rem;
-          margin: 0;
-        }
-
-        .stock {
-          font-size: 0.9rem;
-          color: #6b7280;
-          margin: 4px 0 0 0;
-        }
+        h3 { margin: 0 0 8px 0; font-size: 1.1rem; }
+        .price { color: #2563eb; font-weight: bold; font-size: 1.2rem; margin: 0; }
+        .stock { font-size: 0.9rem; color: #6b7280; margin: 4px 0 0 0; }
       }
     }
   }
 
-  /* --- ตะกร้าสินค้า --- */
   .cart-section {
     width: 350px;
     background: white;
@@ -75,13 +57,11 @@
     flex-direction: column;
     align-items: center;
 
-    h2 {
-      margin-top: 0;
-    }
+    h2 { margin-top: 0; }
 
-    /* สไตล์สำหรับช่องสแกนบาร์โค้ด */
     .barcode-scanner {
       margin-top: 16px;
+      width: 100%;
 
       input {
         width: 100%;
@@ -91,6 +71,7 @@
         border-radius: 8px;
         outline: none;
         transition: all 0.2s;
+        box-sizing: border-box;
 
         &:focus {
           border-color: #3b82f6;
@@ -103,9 +84,9 @@
       flex: 1;
       overflow-y: auto;
       margin-top: 16px;
+      width: 100%;
 
       .cart-item {
-
         display: grid;
         grid-template-columns: 50px 1fr auto;
         gap: 8px 12px;
@@ -120,15 +101,8 @@
           grid-row: span 2;
         }
 
-        span:not(.item-price) {
-          font-weight: 500;
-          color: #1f2937;
-        }
-
-        .item-price {
-          color: #2563eb;
-          font-weight: bold;
-        }
+        span:not(.item-price) { font-weight: 500; color: #1f2937; }
+        .item-price { color: #2563eb; font-weight: bold; }
 
         .item-controls {
           grid-column: 2 / 4;
@@ -137,96 +111,59 @@
           gap: 12px;
 
           .btn-qty {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 1px solid #d1d5db;
-            background: white;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
+            width: 28px; height: 28px; border-radius: 50%;
+            border: 1px solid #d1d5db; background: white;
+            font-size: 1.1rem; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; transition: all 0.2s;
 
-            &:hover {
-              background: #f3f4f6;
-              border-color: #9ca3af;
-            }
+            &:hover { background: #f3f4f6; border-color: #9ca3af; }
           }
 
           .qty-text {
-            width: 45px;
-            height: 28px;
-            text-align: center;
-            font-weight: bold;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            outline: none;
-            transition: border-color 0.2s;
+            width: 45px; height: 28px; text-align: center;
+            font-weight: bold; border: 1px solid #d1d5db;
+            border-radius: 6px; outline: none; transition: border-color 0.2s;
 
-            &::-webkit-outer-spin-button,
-            &::-webkit-inner-spin-button {
-              -webkit-appearance: none;
-              margin: 0;
+            &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+              -webkit-appearance: none; margin: 0;
             }
 
-            &:focus {
-              border-color: #3b82f6;
-            }
+            &:focus { border-color: #3b82f6; }
           }
 
           .btn-delete {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.1rem;
-            opacity: 0.6;
-            transition: opacity 0.2s;
+            background: none; border: none; cursor: pointer;
+            font-size: 1.1rem; opacity: 0.6; transition: opacity 0.2s;
             margin-left: auto;
 
-            /* ดันปุ่มไปขวาสุด */
-            &:hover {
-              opacity: 1;
-              color: red;
-            }
+            &:hover { opacity: 1; color: red; }
           }
         }
       }
 
-      .empty-cart {
-        text-align: center;
-        color: #9ca3af;
-        margin-top: 50px;
-      }
+      .empty-cart { text-align: center; color: #9ca3af; margin-top: 50px; }
     }
 
     .cart-summary {
       padding-top: 20px;
       border-top: 2px solid #e5e7eb;
+      width: 100%;
 
-      .total {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 16px;
-      }
+      .total { font-size: 1.2rem; font-weight: bold; margin-bottom: 16px; }
 
       .checkout-btn {
-        width: 100%;
-        padding: 16px;
-        background-color: #10b981;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        cursor: pointer;
+        width: 100%; padding: 16px; background-color: #10b981;
+        color: white; border: none; border-radius: 8px;
+        font-size: 1.1rem; font-weight: bold; cursor: pointer;
         transition: background-color 0.2s;
 
-        &:hover {
-          background-color: #059669;
-        }
+        &:hover { background-color: #059669; }
       }
     }
   }
+}
+
+/* ซ่อนใบเสร็จตอนแสดงผลหน้าเว็บปกติ */
+.print-only {
+  display: none;
 }

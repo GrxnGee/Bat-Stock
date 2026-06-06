@@ -1,0 +1,182 @@
+.admin-layout {
+    padding: 24px;
+    background-color: #f3f4f6;
+    min-height: 100vh;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.header-section {
+    margin-bottom: 24px;
+}
+
+.header-section h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+.header-section p {
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.adjustment-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1000px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 12px;
+    color: #374151;
+}
+
+/* ฝั่งค้นหา */
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-search {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* แสดงข้อมูลสินค้า */
+.selected-product-info {
+    text-align: center;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.info-badge {
+    display: inline-block;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.qty-display {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #0f172a;
+    margin: 10px 0;
+    line-height: 1;
+}
+
+.product-details p {
+    margin: 4px 0;
+    color: #334155;
+    font-size: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    color: #9ca3af;
+    padding: 40px 0;
+}
+
+/* ฝั่งฟอร์ม */
+.form-card.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #374151;
+}
+
+.radio-group {
+    display: flex;
+    gap: 16px;
+}
+
+.radio-label {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.radio-label.out { background-color: #fef2f2; border-color: #fca5a5; }
+.radio-label.in { background-color: #f0fdf4; border-color: #86efac; }
+
+.form-control, .qty-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.qty-input {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background-color: #059669;
+}

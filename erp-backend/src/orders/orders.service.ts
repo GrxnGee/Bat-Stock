@@ -6,17 +6,22 @@ import { Product } from '../products/entities/product.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
-@Injectable()
+// 👇 1. นำเข้า OmiseService 
+import { OmiseService } from '../omise/omise.service';
 
+@Injectable()
 export class OrdersService {
 
   constructor(
-    @InjectRepository(Order)
-    private ordersRepository: Repository<Order>,
+    @InjectRepository(Order) private ordersRepository: Repository<Order>, @InjectRepository(Product) private productsRepository: Repository<Product>, private omiseService: OmiseService,) { }
 
-    @InjectRepository(Product)
-    private productsRepository: Repository<Product>,
-  ) { }
+  async createPromptPayCharge(amount: number) {
+    return this.omiseService.createPromptPayCharge(amount);
+  }
+
+  async checkChargeStatus(chargeId: string) {
+    return this.omiseService.checkChargeStatus(chargeId);
+  }
 
   private async generateOrderNumber(): Promise<string> {
     const today = new Date();
@@ -127,4 +132,4 @@ export class OrdersService {
   async remove(id: number) {
     return this.ordersRepository.delete(id);
   }
-} 
+}

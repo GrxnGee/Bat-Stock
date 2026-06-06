@@ -1,18 +1,17 @@
-
 <nav class="sidebar" [class.collapsed]="isCollapsed">
-  
+
   <div class="sidebar-header">
     <div class="brand">
       <h2>🏪 <span *ngIf="!isCollapsed">My Store</span></h2>
     </div>
-    
+
 
     <button class="toggle-btn" (click)="toggleSidebar()">
       <span *ngIf="!isCollapsed">«</span>
       <span *ngIf="isCollapsed">»</span>
     </button>
   </div>
-  
+
   <ul class="nav-links">
     <li>
       <a routerLink="/pos" routerLinkActive="active" [title]="isCollapsed ? 'ขายสินค้า (POS)' : ''">
@@ -24,6 +23,18 @@
       <a routerLink="/history" routerLinkActive="active" [title]="isCollapsed ? 'ประวัติการขาย' : ''">
         <span class="icon">📜</span>
         <span class="text" *ngIf="!isCollapsed">ประวัติการขาย</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/product-list" routerLinkActive="active" [title]="isCollapsed ? 'สินค้าทั้งหมดในคลัง' : ''">
+        <span class="icon">📜</span>
+        <span class="text" *ngIf="!isCollapsed">สินค้าทั้งหมดในคลัง</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/stock-adjust" routerLinkActive="active" [title]="isCollapsed ? 'ปรับปรุงสต็อก' : ''">
+        <span class="icon">🔧</span>
+        <span class="text" *ngIf="!isCollapsed">ปรับปรุงสต็อก</span>
       </a>
     </li>
   </ul>

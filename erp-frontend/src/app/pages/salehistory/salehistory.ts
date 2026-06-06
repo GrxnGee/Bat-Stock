@@ -12,13 +12,13 @@ import { SaleHistoryDetail } from '../../components/sale-history-detail/sale-his
 })
 export class Salehistory implements OnInit {
 
+  constructor(private orderService: OrderService, private cdr: ChangeDetectorRef) { }
+
   orders: Order[] = [];
   isLoadingHistory: boolean = false;
-  
+
   selectedOrder: any = null;
   isDetailModalOpen: boolean = false;
-
-  constructor(private orderService: OrderService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.loadHistory();

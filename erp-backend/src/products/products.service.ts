@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
@@ -15,14 +14,12 @@ export class ProductsService {
 
   async onModuleInit() {
     try {
-      
-      const count = await this.productsRepository.count();
 
+      const count = await this.productsRepository.count();
       if (count === 0) {
-        console.log('📦 กำลังปั๊มข้อมูลสินค้าเริ่มต้น...');
         const initialProducts = [
-          { name: 'กาแฟคั่วกลาง', price: 65, quantity: 50, barcode: '8850001', image: 'https://picsum.photos/200' },
-          { name: 'ชาเขียวมัทฉะ', price: 75, quantity: 30, barcode: '8850002', image: 'https://picsum.photos/201' },
+          { name: 'กาแฟคั่วกลาง', price: 65, quantity: 50, barcode: '8850001', image: 'https://picsum.photos/200', costUnit: 15 },
+          { name: 'ชาเขียวมัทฉะ', price: 75, quantity: 30, barcode: '8850002', image: 'https://picsum.photos/201', costUnit: 15 },
         ];
         await this.productsRepository.save(initialProducts);
         console.log('✅ ปั๊มข้อมูลสำเร็จ!');
@@ -34,8 +31,9 @@ export class ProductsService {
   }
 
 
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  async create(productData: Partial<Product>) {
+    const product = this.productsRepository.create(productData);
+    return this.productsRepository.save(product);
   }
 
   async findAll(): Promise<Product[]> {
@@ -50,11 +48,13 @@ export class ProductsService {
     return `This action returns a #${id} product`;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    await this.productsRepository.update(id, updateProductDto);
+    return this.productsRepository.findOneBy({ id });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    await this.productsRepository.delete(id);
+    return { success: true, message: `ลบสินค้า ID ${id} เรียบร้อย` };
   }
 }
