@@ -1,0 +1,119 @@
+<div class="admin-layout">
+    <div class="header-section">
+        <h2>📊 ภาพรวมธุรกิจ (Dashboard)</h2>
+        <p>สรุปยอดขายและสินค้าขายดีประจำวัน</p>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card revenue-card">
+            <div class="card-icon">💰</div>
+            <div class="card-info">
+                <p>ยอดขายวันนี้</p>
+                <h3>฿{{ todaySales | number:'1.2-2' }}</h3>
+            </div>
+        </div>
+
+        <div class="summary-card orders-card">
+            <div class="card-icon">🧾</div>
+            <div class="card-info">
+                <p>จำนวนบิล (ออเดอร์)</p>
+                <h3>{{ todayOrders }} บิล</h3>
+            </div>
+        </div>
+
+        <div class="summary-card alert-card">
+            <div class="card-icon">⚠️</div>
+            <div class="card-info">
+                <p>สินค้าใกล้หมดสต็อก</p>
+                <h3>{{ lowStockCount }} รายการ</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-content" style="display: grid; gap: 24px;">
+
+        <div class="card top-products-card">
+            <h3>🏆 5 อันดับสินค้าขายดี (จำแนกตามจำนวนชิ้น)</h3>
+
+            <div class="product-list">
+                @for (item of topProducts; track item.name; let i = $index) {
+                <div class="product-item">
+                    <div class="rank-number">{{ i + 1 }}</div>
+                    <img [src]="item.image" alt="Product Image" class="product-img">
+
+                    <div class="product-details">
+                        <div class="product-title-row">
+                            <span class="product-name">{{ item.name }}</span>
+                            <span class="product-revenue">ยอดขาย: ฿{{ item.revenue | number }}</span>
+                        </div>
+
+                        <div class="bar-container">
+                            <div class="bar-fill" [style.width]="calculateBarWidth(item.soldQuantity)"></div>
+                            <span class="bar-text">{{ item.soldQuantity }} ชิ้น</span>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header-flex">
+                <h3>📜 ประวัติการขาย (Sales History)</h3>
+
+                <div class="date-filter-box">
+                    <label for="searchDate">ค้นหาตามวันที่:</label>
+                    <input type="date" id="searchDate" [(ngModel)]="searchDate" (change)="filterOrdersByDate()"
+                        class="form-control">
+                    @if (searchDate) {
+                    <button class="btn-clear-filter" (click)="clearFilter()" title="ล้างการค้นหา">ล้างค่า</button>
+                    }
+                </div>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>เลขที่บิล</th>
+                            <th>วันที่-เวลา</th>
+                            <th>ยอดรวม (บาท)</th>
+                            <th>วิธีชำระเงิน</th>
+                            <th style="text-align: center;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (order of filteredOrders; track order.id) {
+                        <tr>
+                            <td><strong>{{ order.orderNumber }}</strong></td>
+                            <td>{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td class="text-success">฿{{ order.totalAmount | number:'1.2-2' }}</td>
+                            <td>
+                                <span class="badge"
+                                    [ngClass]="order.paymentMethod === 'CASH' ? 'badge-cash' : 'badge-transfer'">
+                                    {{ order.paymentMethod }}
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <button class="btn-view" (click)="openOrderDetails(order)">ดูรายละเอียด</button>
+                            </td>
+                        </tr>
+                        } @empty {
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                {{ searchDate ? 'ไม่พบรายการขายในวันที่เลือก' : 'ไม่มีประวัติการขายในระบบ' }}
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <app-alert-modal [isOpen]="isAlertOpen" [message]="alertMessage" [type]="alertType"
+            (closed)="isAlertOpen = false">
+        </app-alert-modal>
+
+        <app-sale-history-detail [isOpen]="isDetailModalOpen" [order]="selectedOrder"
+            (closed)="isDetailModalOpen = false">
+        </app-sale-history-detail>

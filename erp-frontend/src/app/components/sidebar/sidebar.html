@@ -20,21 +20,15 @@
       </a>
     </li>
     <li>
-      <a routerLink="/history" routerLinkActive="active" [title]="isCollapsed ? 'ประวัติการขาย' : ''">
-        <span class="icon">📜</span>
-        <span class="text" *ngIf="!isCollapsed">ประวัติการขาย</span>
-      </a>
-    </li>
-    <li>
-      <a routerLink="/product-list" routerLinkActive="active" [title]="isCollapsed ? 'สินค้าทั้งหมดในคลัง' : ''">
-        <span class="icon">📜</span>
-        <span class="text" *ngIf="!isCollapsed">สินค้าทั้งหมดในคลัง</span>
-      </a>
-    </li>
-    <li>
       <a routerLink="/stock-adjust" routerLinkActive="active" [title]="isCollapsed ? 'ปรับปรุงสต็อก' : ''">
         <span class="icon">🔧</span>
         <span class="text" *ngIf="!isCollapsed">ปรับปรุงสต็อก</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dashboard" routerLinkActive="active" [title]="isCollapsed ? 'แดชบอร์ด' : ''">
+        <span class="icon">📊</span>
+        <span class="text" *ngIf="!isCollapsed">แดชบอร์ด</span>
       </a>
     </li>
   </ul>

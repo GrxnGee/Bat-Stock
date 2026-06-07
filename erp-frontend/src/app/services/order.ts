@@ -9,6 +9,14 @@ export interface Order {
   totalAmount: number;
   paymentMethod: string;
   createdAt: string;
+  items: OrderItem[];
+}
+
+export interface OrderItem {
+  id: number;
+  productId: number;
+  quantity: number;
+  price: number;
 }
 
 @Injectable({

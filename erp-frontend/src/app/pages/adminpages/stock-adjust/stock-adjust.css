@@ -180,3 +180,143 @@
 .btn-submit:hover:not(:disabled) {
     background-color: #059669;
 }
+
+.tab-navigation {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 12px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 24px;
+    font-size: 1.1rem;
+    color: #6b7280;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover { background: #e5e7eb; color: #374151; }
+
+.tab-btn.active {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+}
+
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ... (โค้ดเดิมส่วนบนสุดของ stock-adjust.css จนถึง .fade-in ให้เก็บไว้เหมือนเดิม) ... */
+.admin-layout { padding: 24px; background-color: #f3f4f6; min-height: 100vh; font-family: 'Sarabun', sans-serif; }
+.header-section { margin-bottom: 24px; }
+.header-section h2 { margin: 0; color: #1f2937; font-size: 1.5rem; }
+.header-section p { color: #6b7280; margin-top: 4px; }
+.adjustment-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 1000px; }
+.card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.card h3 { margin-top: 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; color: #374151; }
+.search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+.search-box input { flex: 1; padding: 10px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; outline: none; }
+.search-box input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+.btn-search { background: #3b82f6; color: white; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.selected-product-info { text-align: center; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 24px; }
+.info-badge { display: inline-block; background: #e2e8f0; color: #475569; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
+.qty-display { font-size: 4rem; font-weight: bold; color: #0f172a; margin: 10px 0; line-height: 1; }
+.product-details p { margin: 4px 0; color: #334155; font-size: 1rem; }
+.empty-state { text-align: center; color: #9ca3af; padding: 40px 0; }
+.form-card.disabled { opacity: 0.5; pointer-events: none; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #374151; }
+.radio-group { display: flex; gap: 16px; }
+.radio-label { flex: 1; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; font-weight: normal; display: flex; align-items: center; gap: 8px; }
+.radio-label.out { background-color: #fef2f2; border-color: #fca5a5; }
+.radio-label.in { background-color: #f0fdf4; border-color: #86efac; }
+.form-control, .qty-input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; box-sizing: border-box; font-family: inherit; }
+.qty-input { font-size: 1.2rem; font-weight: bold; }
+.btn-submit { width: 100%; padding: 14px; background-color: #10b981; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+.btn-submit:hover:not(:disabled) { background-color: #059669; }
+.tab-navigation { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; }
+.tab-btn { background: none; border: none; padding: 10px 24px; font-size: 1.1rem; color: #6b7280; font-family: inherit; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+.tab-btn:hover { background: #e5e7eb; color: #374151; }
+.tab-btn.active { background: #3b82f6; color: white; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4); }
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ========================================= */
+/* CSS สำหรับฟอร์ม (ใช้ร่วมกันทั้ง Product และ Supplier) */
+/* ========================================= */
+.supplier-container, .product-container { display: flex; flex-direction: column; gap: 24px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.full-width { grid-column: span 2; }
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+.btn-cancel {
+    background-color: #e5e7eb; color: #374151;
+    border: none; border-radius: 8px; padding: 10px 20px;
+    font-weight: bold; cursor: pointer;
+}
+.btn-cancel:hover { background-color: #d1d5db; }
+
+.table-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 16px; }
+.btn-add { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-add:hover { background: #059669; }
+
+/* ========================================= */
+/* ตารางข้อมูลกลาง (.admin-table) สีกรมท่า ขอบมน */
+/* ========================================= */
+.table-responsive { overflow-x: auto; }
+.admin-table { 
+    width: 100%; 
+    border-collapse: separate; 
+    border-spacing: 0;
+    border: 1px solid #e2e8f0; 
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: left; 
+}
+.admin-table th { background: #1e293b; color: #ffffff; padding: 16px; font-weight: bold; font-size: 1rem; }
+.admin-table td { padding: 16px; border-bottom: 1px solid #e2e8f0; color: #334155; background-color: #ffffff; vertical-align: middle;}
+.admin-table tr:hover td { background: #f8fafc; }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table th.actions, .admin-table td.actions { text-align: center; }
+
+/* ไอคอนการจัดการ */
+.btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 6px; border-radius: 4px; transition: 0.2s; }
+.btn-icon.edit:hover { background: #dbeafe; }
+.btn-icon.delete:hover { background: #fee2e2; }
+.text-danger { color: #ef4444; }
+.mb-4 { margin-bottom: 24px; }
+.mt-3 { margin-top: 16px; }
+
+/* ========================================= */
+/* CSS เฉพาะสำหรับระบบจัดการสินค้า (Product List) */
+/* ========================================= */
+.product-img { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; border: 1px solid #edf2f7; }
+.stock-badge { background: #ebf8ff; color: #3182ce; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; font-family: monospace; }
+.stock-badge.low-stock { background: #fee2e2; color: #ef4444; }
+.price-text { color: #10b981; font-weight: bold; font-size: 1rem; }
+.text-muted { color: #94a3b8; }
+
+/* การ์ดเตือนสินค้าใกล้หมด */
+.warning-card {
+    background: #fffaf0;
+    border-left: 5px solid #dd6b20;
+    border-radius: 8px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(221, 107, 32, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.warning-header { display: flex; align-items: center; gap: 10px; color: #c05621; }
+.warning-header h3 { margin: 0; font-size: 1.1rem; border: none; padding: 0; }
+.low-stock-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.low-stock-item { background: white; border: 1px solid #fbd38d; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+.low-stock-name { font-weight: bold; color: #2d3748; }
+.low-stock-qty { background: #fed7d7; color: #c53030; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
