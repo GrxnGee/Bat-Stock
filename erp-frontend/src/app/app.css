@@ -1,6 +1,7 @@
 .app-layout {
   display: flex;
   overflow: hidden; 
+  min-height: 100vh;
 }
 
 .main-content {

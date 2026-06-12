@@ -23,7 +23,7 @@ export class CheckoutModalComponent {
   @Input() isProcessing: boolean = false;
   @Input() total: number = 0;
 
-  @Output() canceled = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
   @Output() confirmed = new EventEmitter<PaymentData>();
 
   paymentMethod: 'CASH' | 'TRANSFER' = 'CASH';
@@ -111,7 +111,8 @@ export class CheckoutModalComponent {
     this.receivedAmount = 0;
     this.slipReference = '';
     this.isProcessing = false;
-    this.canceled.emit();
+    this.closed.emit();
+    
   }
 
   confirmPayment(): void {

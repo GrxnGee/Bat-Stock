@@ -20,7 +20,7 @@
     margin-top: 4px;
 }
 
-/* Summary Cards */
+
 .summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -42,33 +42,6 @@
     transform: translateY(-3px);
 }
 
-.card-icon {
-    font-size: 2.5rem;
-    margin-right: 20px;
-    background: #f8fafc;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-}
-
-.revenue-card .card-icon {
-    color: #10b981;
-    background: #d1fae5;
-}
-
-.orders-card .card-icon {
-    color: #3b82f6;
-    background: #dbeafe;
-}
-
-.alert-card .card-icon {
-    color: #ef4444;
-    background: #fee2e2;
-}
-
 .card-info p {
     margin: 0;
     color: #6b7280;
@@ -82,7 +55,7 @@
     font-size: 1.8rem;
 }
 
-/* Top Products List */
+
 .card {
     background: white;
     border-radius: 12px;
@@ -245,7 +218,7 @@
     font-weight: bold;
 }
 
-/* ปุ่มดูรายละเอียด */
+
 .btn-view {
     background-color: #3b82f6;
     color: white;

@@ -12,20 +12,13 @@ export class ProductsService {
     private productsRepository: Repository<Product>,
   ) { }
 
-  async onModuleInit() {
+async onModuleInit() {
     try {
-
       const count = await this.productsRepository.count();
       if (count === 0) {
-        const initialProducts = [
-          { name: 'กาแฟคั่วกลาง', price: 65, quantity: 50, barcode: '8850001', image: 'https://picsum.photos/200', costUnit: 15 },
-          { name: 'ชาเขียวมัทฉะ', price: 75, quantity: 30, barcode: '8850002', image: 'https://picsum.photos/201', costUnit: 15 },
-        ];
-        await this.productsRepository.save(initialProducts);
-        console.log('✅ ปั๊มข้อมูลสำเร็จ!');
+        console.log('✅ ฐานข้อมูล Product ว่างเปล่า (พร้อมสำหรับเพิ่มข้อมูลจริง)');
       }
     } catch (error) {
-      // ถ้าหาตารางไม่เจอ ให้ปริ้นท์บอกเฉยๆ แต่อย่าทำให้เซิร์ฟเวอร์ดับ
       console.log('⏳ กำลังรอ TypeORM สร้างตาราง Product...');
     }
   }

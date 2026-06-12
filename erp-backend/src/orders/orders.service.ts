@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, DataSource, EntityManager } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { Product } from '../products/entities/product.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -13,7 +13,7 @@ import { OmiseService } from '../omise/omise.service';
 export class OrdersService {
 
   constructor(
-    @InjectRepository(Order) private ordersRepository: Repository<Order>, @InjectRepository(Product) private productsRepository: Repository<Product>, private omiseService: OmiseService,) { }
+    @InjectRepository(Order) private ordersRepository: Repository<Order>, @InjectRepository(Product) private productsRepository: Repository<Product>, private omiseService: OmiseService, private dataSource: DataSource) { }
 
   async createPromptPayCharge(amount: number) {
     return this.omiseService.createPromptPayCharge(amount);
@@ -23,7 +23,7 @@ export class OrdersService {
     return this.omiseService.checkChargeStatus(chargeId);
   }
 
-  private async generateOrderNumber(): Promise<string> {
+  private async generateOrderNumber(manager: EntityManager): Promise<string> {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -31,7 +31,7 @@ export class OrdersService {
 
     const dateString = `${year}${month}${day}`;
 
-    const currentCount = await this.ordersRepository.count({
+    const currentCount = await manager.count(Order, {
       where: {
         orderNumber: Like(`INV-${dateString}%`),
       },
@@ -44,71 +44,83 @@ export class OrdersService {
   }
 
   async create(createOrderDto: CreateOrderDto) {
-    console.log('🔍 กำลังตรวจสอบสต็อกสินค้า...');
+    console.log('🔒 กำลังเริ่มระบบ Transaction...');
 
-    for (const item of createOrderDto.items!) {
-      const product = await this.productsRepository.findOne({
-        where: { id: item.productId }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+
+      for (const item of createOrderDto.items!) {
+        const product = await queryRunner.manager.findOne(Product, {
+          where: { id: item.productId }
+        });
+
+        if (!product) {
+          throw new BadRequestException(`ไม่พบสินค้ารหัส ${item.productId} ในคลังสินค้า`);
+        }
+        if (product.quantity < item.quantity!) {
+          throw new BadRequestException(`สินค้า "${product.name}" หมดหรือสต็อกไม่พอ`);
+        }
+      }
+
+
+
+      for (const item of createOrderDto.items!) {
+
+        const updateResult = await queryRunner.manager
+          .createQueryBuilder()
+          .update(Product)
+          .set({ quantity: () => `quantity - ${item.quantity}` }) 
+          .where('id = :id AND quantity >= :reqQty', { id: item.productId, reqQty: item.quantity }) // 🌟 เงื่อนไขสำคัญ: ตอนจะอัปเดต สต็อกต้องยังเหลือพอ!
+          .execute();
+
+
+        if (updateResult.affected === 0) {
+
+          const p = await this.productsRepository.findOne({ where: { id: item.productId } });
+          throw new BadRequestException(`ขออภัย! สินค้า "${p?.name || 'รหัส ' + item.productId}" เพิ่งถูกทำรายการไปโดยเครื่อง POS อื่น สต็อกปัจจุบันไม่เพียงพอ`);
+        }
+      }
+
+      const newOrderNumber = await this.generateOrderNumber(queryRunner.manager);
+      const orderToSave = queryRunner.manager.create(Order, {
+        orderNumber: newOrderNumber,
+        totalAmount: createOrderDto.totalAmount,
+        paymentMethod: createOrderDto.payment!.method,
+        items: createOrderDto.items!.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
       });
 
-      if (!product) {
-        console.log('ไม่พบสินค้ารหัส', item.productId, 'ในคลังสินค้า');
-        throw new BadRequestException(`ไม่พบสินค้ารหัส ${item.productId} ในคลังสินค้า`);
-      }
+      const savedOrder = await queryRunner.manager.save(Order, orderToSave);
 
-      if (product.quantity < item.quantity!) {
-        console.log('สินค้า', product.name, 'มีสต็อกไม่พอ (คงเหลือ', product.quantity, 'ชิ้น แต่สั่งซื้อ', item.quantity, 'ชิ้น)');
-        throw new BadRequestException(`สินค้า ${product.name} มีสต็อกไม่พอ (คงเหลือ ${product.quantity} ชิ้น แต่สั่งซื้อ ${item.quantity} ชิ้น)`);
-      }
+      await queryRunner.commitTransaction();
+      console.log(`✅ บันทึกบิล ${savedOrder.orderNumber} และตัดสต็อกสำเร็จ!`);
+
+      return {
+        success: true,
+        message: 'ชำระเงินสำเร็จ',
+        order: savedOrder,
+      };
+
+    } catch (error) {
+      console.error('❌ เกิดข้อผิดพลาด! ทำการ Rollback ยกเลิกบิลและคืนสต็อกทั้งหมด...');
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+      console.log('🔓 ปลดล็อกฐานข้อมูลเรียบร้อย');
     }
-
-
-    console.log('🛒 ได้รับออเดอร์ใหม่:', createOrderDto);
-
-    const newOrderNumber = await this.generateOrderNumber();
-
-    const orderToSave = this.ordersRepository.create({
-      orderNumber: newOrderNumber,
-      totalAmount: createOrderDto.totalAmount,
-      paymentMethod: createOrderDto.payment!.method,
-      items: createOrderDto.items!.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    });
-
-    const savedOrder = await this.ordersRepository.save(orderToSave);
-
-    console.log(`✅ บันทึกบิล ${savedOrder.orderNumber} สำเร็จ!`);
-
-    console.log('📦 กำลังเริ่มตัดสต็อกสินค้า...');
-
-    for (const item of savedOrder.items) {
-      const product = await this.productsRepository.findOne({ where: { id: item.productId }, });
-
-      if (product) {
-        product.quantity = product.quantity - item.quantity;
-        await this.productsRepository.save(product);
-        console.log(`✅ ตัดสต็อกรหัส ${product.id} เหลือ ${product.quantity} ชิ้น`);
-      }
-
-    }
-
-    return {
-      success: true,
-      message: 'ชำระเงินสำเร็จ',
-      order: savedOrder,
-    };
   }
 
   async findAll() {
     console.log('📊 กำลังดึงประวัติการขายทั้งหมด...');
-
     const orders = await this.ordersRepository.find({
-
       relations: { items: true, },
-
       order: {
         createdAt: 'DESC',
       },

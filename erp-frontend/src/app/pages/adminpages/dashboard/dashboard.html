@@ -1,12 +1,11 @@
 <div class="admin-layout">
     <div class="header-section">
-        <h2>📊 ภาพรวมธุรกิจ (Dashboard)</h2>
+        <h2>ภาพรวมธุรกิจ (Dashboard)</h2>
         <p>สรุปยอดขายและสินค้าขายดีประจำวัน</p>
     </div>
 
     <div class="summary-grid">
         <div class="summary-card revenue-card">
-            <div class="card-icon">💰</div>
             <div class="card-info">
                 <p>ยอดขายวันนี้</p>
                 <h3>฿{{ todaySales | number:'1.2-2' }}</h3>
@@ -14,7 +13,6 @@
         </div>
 
         <div class="summary-card orders-card">
-            <div class="card-icon">🧾</div>
             <div class="card-info">
                 <p>จำนวนบิล (ออเดอร์)</p>
                 <h3>{{ todayOrders }} บิล</h3>
@@ -22,7 +20,6 @@
         </div>
 
         <div class="summary-card alert-card">
-            <div class="card-icon">⚠️</div>
             <div class="card-info">
                 <p>สินค้าใกล้หมดสต็อก</p>
                 <h3>{{ lowStockCount }} รายการ</h3>
@@ -33,7 +30,7 @@
     <div class="dashboard-content" style="display: grid; gap: 24px;">
 
         <div class="card top-products-card">
-            <h3>🏆 5 อันดับสินค้าขายดี (จำแนกตามจำนวนชิ้น)</h3>
+            <h3>*สินค้าขายดี*</h3>
 
             <div class="product-list">
                 @for (item of topProducts; track item.name; let i = $index) {
@@ -59,7 +56,7 @@
 
         <div class="card">
             <div class="card-header-flex">
-                <h3>📜 ประวัติการขาย (Sales History)</h3>
+                <h3>ประวัติการขาย (Sales History)</h3>
 
                 <div class="date-filter-box">
                     <label for="searchDate">ค้นหาตามวันที่:</label>

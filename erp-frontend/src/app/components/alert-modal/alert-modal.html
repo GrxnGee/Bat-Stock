@@ -1,37 +1,49 @@
 @if (isOpen) {
-@if (type === 'payment-success') {
-<div class="modal-overlay">
-    <div class="modal-box alert-box">
-        <div class="alert-icon">✅</div>
-        <h2>แจ้งเตือน</h2>
-        <p>{{ message }}</p>
-        <div class="modal-actions">
-            <button class="btn-confirm" (click)="closeAlert()">ตกลง</button>
+    @if (type === 'payment-success') {
+    <div class="modal-overlay">
+        <div class="modal-box alert-box">
+            <div class="alert-icon">✅</div>
+            <h2>แจ้งเตือน</h2>
+            <p>{{ message }}</p>
+            <div class="modal-actions">
+                <button class="btn-confirm" (click)="closeAlert()">ตกลง</button>
+            </div>
         </div>
     </div>
-</div>
-}@else if (type === 'confirm-delete') {
-<div class="modal-overlay">
-    <div class="modal-box alert-box">
-        <div class="alert-icon">🗑️</div>
-        <h2>ยืนยันการลบ</h2>
-        <p>{{ message }}</p>
-        <div class="modal-actions">
-            <button class="btn-cancel" (click)="closeAlert()">ยกเลิก</button>
-            <button class="btn-danger" (click)="confirmAction()">ลบสินค้า</button>
+    } @else if (type === 'confirm-delete') {
+    <div class="modal-overlay">
+        <div class="modal-box alert-box">
+                <div class="alert-icon">🗑️</div>
+            <h2>ยืนยันการลบ</h2>
+            <p>{{ message }}</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeAlert()">ยกเลิก</button>
+                <button class="btn-danger" (click)="confirmAction()">ลบสินค้า</button>
+            </div>
         </div>
     </div>
-</div>
-}@else {
-<div class="modal-overlay">
-    <div class="modal-box alert-box">
-        <div class="alert-icon">⚠️</div>
-        <h2>แจ้งเตือน</h2>
-        <p>{{ message }}</p>
-        <div class="modal-actions">
-            <button class="btn-confirm" (click)="closeAlert()">ตกลง</button>
+    } @else if (type === 'confirm-logout') {
+    <div class="modal-overlay">
+        <div class="modal-box alert-box">
+                <div class="alert-icon">🚪</div>
+            <h2>ยืนยันออกจากระบบ</h2>
+            <p>{{ message }}</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeAlert()">ยกเลิก</button>
+                <button class="btn-danger" (click)="confirmAction()">ออกจากระบบ</button>
+            </div>
         </div>
     </div>
-</div>
-}
+    } @else {
+    <div class="modal-overlay">
+        <div class="modal-box alert-box">
+            <div class="alert-icon">⚠️</div>
+            <h2>แจ้งเตือน</h2>
+            <p>{{ message }}</p>
+            <div class="modal-actions">
+                <button class="btn-confirm" (click)="closeAlert()">ตกลง</button>
+            </div>
+        </div>
+    </div>
+    }
 }

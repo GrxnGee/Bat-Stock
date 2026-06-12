@@ -1,0 +1,41 @@
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <span class="store-icon">🏪</span>
+            <h1>My Store</h1>
+            <p>ระบบบริหารจัดการร้านค้าและจุดขาย (ERP & POS)</p>
+        </div>
+
+        @if (errorMessage) {
+        <div class="error-alert">
+            {{ errorMessage }}
+        </div>
+        }
+
+        <form (ngSubmit)="onSubmitLogin()">
+            <div class="input-group">
+                <label for="username">👤 ชื่อผู้ใช้งาน (Username)</label>
+                <input type="text" id="username" name="username" [(ngModel)]="usernameInput"
+                    placeholder="กรอกชื่อผู้ใช้งาน..." autocomplete="username" [disabled]="isLoading">
+            </div>
+
+            <div class="input-group">
+                <label for="password">🔒 รหัสผ่าน (Password)</label>
+                <input type="password" id="password" name="password" [(ngModel)]="passwordInput"
+                    placeholder="กรอกรหัสผ่าน..." autocomplete="current-password" [disabled]="isLoading">
+            </div>
+
+            <button type="submit" class="btn-login" [disabled]="isLoading">
+                @if (isLoading) {
+                   <span class="spinner">⏳</span> กำลังตรวจสอบสิทธิ์...
+                } @else {
+                   🔑 เข้าสู่ระบบ
+                }
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <p>© 2026 GrxnGee Bat Stock Co., Ltd. All Rights Reserved.</p>
+        </div>
+    </div>
+</div>

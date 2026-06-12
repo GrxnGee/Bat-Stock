@@ -7,6 +7,9 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OmiseModule } from './omise/omise.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
+import { PromotionsModule } from './promotions/promotions.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true, }),
@@ -14,7 +17,10 @@ import { SuppliersModule } from './suppliers/suppliers.module';
     ProductsModule,
     OrdersModule,
     OmiseModule,
-    SuppliersModule],
+    SuppliersModule,
+    PromotionsModule,
+    UsersModule,
+    AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

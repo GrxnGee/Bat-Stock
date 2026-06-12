@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AlertModalComponent } from '../../components/alert-modal/alert-modal';
 import { CheckoutModalComponent, PaymentData } from '../../components/checkout-modal/checkout-modal';
 import { CartService, PosProduct } from '../../services/cart';
+import { PromotionService, Promotion } from '../../services/promotion'; // 🌟 import Promotion เข้ามาด้วย
 
 @Component({
   selector: 'app-pos',
@@ -14,32 +15,44 @@ import { CartService, PosProduct } from '../../services/cart';
 })
 export class Poscomponent implements OnInit {
 
-  constructor(public cartService: CartService, private cdr: ChangeDetectorRef) { }
+  constructor(
+    public cartService: CartService,
+    private cdr: ChangeDetectorRef,
+    private promoService: PromotionService
+  ) { }
 
   get products() { return this.cartService.products; }
   get cart() { return this.cartService.cart; }
   get total() { return this.cartService.total; }
 
+  promoCodeInput: string = '';
+  appliedPromo: any = null;
+  discountAmount: number = 0;
+  autoPromos: Promotion[] = [];
+
+  get netTotal() {
+    const net = this.total - this.discountAmount;
+    return net > 0 ? net : 0;
+  }
+
   isCheckoutOpen: boolean = false;
   isAlertOpen: boolean = false;
   alertMessage: string = '';
   alertType: string = '';
-
   barcodeInput: string = '';
 
   today: Date = new Date();
-  lastPaymentData: PaymentData | null = null
-
+  lastPaymentData: PaymentData | null = null;
   isLoadingProducts: boolean = false;
   isSubmittingOrder: boolean = false;
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadAutoPromotions();
   }
 
   loadProducts(): void {
     this.isLoadingProducts = true;
-
     this.cartService.fetchProducts().subscribe({
       next: data => {
         this.cartService.products = data;
@@ -55,10 +68,48 @@ export class Poscomponent implements OnInit {
     });
   }
 
-  addProduct(product: PosProduct) { this.cartService.addProduct(product); }
-  increaseQuantity(productId: number) { this.cartService.increaseQuantity(productId); }
-  decreaseQuantity(productId: number) { this.cartService.decreaseQuantity(productId); }
-  removeItem(productId: number) { this.cartService.removeItem(productId); }
+
+  loadAutoPromotions() {
+    this.promoService.getPromotions().subscribe(res => {
+      this.autoPromos = res.filter(p => p.isActive && p.isAutoApply);
+    });
+  }
+
+
+  getPromoBadge(productId: number): string | null {
+    const promo = this.autoPromos.find(p => p.applicableProductId === productId);
+    if (!promo) return null;
+    return promo.discountType === 'PERCENTAGE' ? `🔥 ลด ${promo.discountValue}%` : `🔥 ลด ฿${promo.discountValue}`;
+  }
+
+  addProduct(product: PosProduct) {
+    const existingItem = this.cart.find(item => item.id === product.id);
+    if (existingItem && existingItem.selectedQuantity >= product.quantity) {
+      this.showAlert('warning', `ไม่สามารถเพิ่มได้ "${product.name}" มีจำนวนคงเหลือเพียง ${product.quantity} ชิ้น`);
+      return;
+    }
+    if (!existingItem && product.quantity <= 0) {
+      this.showAlert('warning', `สินค้า "${product.name}" หมดสต็อกแล้ว`);
+      return;
+    }
+    this.cartService.addProduct(product);
+    this.recalculatePromo();
+  }
+
+  increaseQuantity(productId: number) {
+    this.cartService.increaseQuantity(productId);
+    this.recalculatePromo();
+  }
+
+  decreaseQuantity(productId: number) {
+    this.cartService.decreaseQuantity(productId);
+    this.recalculatePromo();
+  }
+
+  removeItem(productId: number) {
+    this.cartService.removeItem(productId);
+    this.recalculatePromo();
+  }
 
   showAlert(type: string, message: string): void {
     this.alertType = type;
@@ -76,19 +127,105 @@ export class Poscomponent implements OnInit {
 
   onScanBarcode(barcode: string) {
     if (!barcode) return;
-
     const foundProduct = this.products.find(pro => pro.barcode === barcode);
-
     if (foundProduct) {
       this.addProduct(foundProduct);
-      console.log(`✅ สแกนเจอ: ${foundProduct.name} เพิ่มลงตะกร้าแล้ว!`);
     } else {
       this.showAlert('error', 'ไม่พบสินค้าในระบบ');
     }
+    this.barcodeInput = '';
   }
 
   getTotalQuantity(): number {
     return this.cart.reduce((sum, item) => sum + item.selectedQuantity, 0);
+  }
+
+  onQuantityChange(item: any) {
+
+    if (item.selectedQuantity == null || item.selectedQuantity < 1) {
+      item.selectedQuantity = 1;
+    } 
+
+    else if (item.selectedQuantity > item.quantity) {
+      item.selectedQuantity = item.quantity;
+      this.showAlert('warning', `สต็อกสินค้า "${item.name}" มีจำนวนคงเหลือเพียง ${item.quantity} ชิ้น`);
+    }
+    
+    this.recalculatePromo();
+  }
+
+  applyPromoCode() {
+    if (!this.promoCodeInput.trim()) return;
+    this.promoService.validatePromoCode(this.promoCodeInput, this.cart).subscribe({
+      next: (result) => {
+        this.appliedPromo = result;
+        this.discountAmount = result.calculatedDiscount;
+        this.showAlert('payment-success', `ใช้โค้ดสำเร็จ! ได้รับส่วนลด ฿${this.discountAmount}`);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.showAlert('warning', err.error?.message || 'โค้ดส่วนลดไม่ถูกต้อง');
+        this.removePromo();
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ลบส่วนลดที่ลูกค้ากรอก
+  removePromo() {
+    this.promoCodeInput = '';
+    this.appliedPromo = null;
+    this.discountAmount = 0;
+    this.recalculatePromo();
+  }
+
+
+  recalculatePromo() {
+    if (this.cart.length === 0) {
+      this.appliedPromo = null;
+      this.discountAmount = 0;
+      this.promoCodeInput = '';
+      return;
+    }
+
+
+    if (this.appliedPromo && !this.appliedPromo.isAutoApply) {
+      this.promoCodeInput = this.appliedPromo.code;
+      this.promoService.validatePromoCode(this.promoCodeInput, this.cart).subscribe({
+        next: (result) => {
+          this.appliedPromo = result;
+          this.discountAmount = result.calculatedDiscount;
+        },
+        error: () => {
+          this.appliedPromo = null;
+          this.discountAmount = 0;
+          this.promoCodeInput = '';
+          this.showAlert('warning', 'ยอดเงินไม่ถึงขั้นต่ำของส่วนลด หรือสินค้าไม่ตรงตามเงื่อนไข ระบบจึงยกเลิกโค้ดอัตโนมัติ');
+          this.recalculatePromo();
+        }
+      });
+    }
+
+    else {
+      this.promoService.checkAutoPromotion(this.cart).subscribe({
+        next: (result) => {
+          if (result) {
+            this.appliedPromo = result;
+            this.discountAmount = result.calculatedDiscount;
+            this.promoCodeInput = ''; // ล้างช่องเผื่อไว้
+          } else {
+            this.appliedPromo = null;
+            this.discountAmount = 0;
+            this.promoCodeInput = '';
+          }
+        },
+        error: () => {
+          this.appliedPromo = null;
+          this.discountAmount = 0;
+          this.promoCodeInput = '';
+        }
+      });
+    }
   }
 
   generateReceiptNumber(): string {
@@ -104,12 +241,12 @@ export class Poscomponent implements OnInit {
   }
 
   processPayment(data: PaymentData): void {
-    if (data.receivedAmount < this.total && data.method === 'CASH') {
+    if (data.receivedAmount < this.netTotal && data.method === 'CASH') {
       this.showAlert('payment-failure', 'กรุณาใส่จำนวนเงินที่รับมาให้ครบถ้วน');
       return;
     }
     if (data.method === 'TRANSFER' && !data.slipReference.trim()) {
-      this.showAlert('payment-failure', 'กรุณากรอกเลขอ้างอิงสลิปการโอนเงิน');
+      this.showAlert('payment-failure', 'กรุณาโอนเงินให้เรียบร้อย');
       return;
     }
 
@@ -117,15 +254,22 @@ export class Poscomponent implements OnInit {
     if (outOfStockItems.length > 0) {
       const itemNames = outOfStockItems.map(i => i.name).join(', ');
       this.showAlert('warning', `สต็อกสินค้าไม่เพียงพอ: ${itemNames}`);
-      return; 
+      return;
     }
 
     this.isSubmittingOrder = true;
     this.lastPaymentData = data;
+    this.cdr.detectChanges();
 
-    this.cartService.submitOrder(data).subscribe({
+    const payload = {
+      ...data,
+      totalAmount: this.netTotal,
+      discountAmount: this.discountAmount,
+      promoCode: this.appliedPromo?.code || null
+    };
+
+    this.cartService.submitOrder(payload).subscribe({
       next: response => {
-
         this.isCheckoutOpen = false;
         this.isSubmittingOrder = false;
         this.cdr.detectChanges();
@@ -134,18 +278,24 @@ export class Poscomponent implements OnInit {
           this.printReceipt();
 
           this.cartService.clearCart();
+          this.appliedPromo = null;
+          this.discountAmount = 0;
+          this.promoCodeInput = '';
           this.loadProducts();
-          this.showAlert('payment-success', 'ชำระยอดเงิน ' + this.total + ' บาท เรียบร้อยแล้ว');
+
+          this.showAlert('payment-success', 'ชำระยอดสุทธิ ' + this.netTotal.toLocaleString() + ' บาท เรียบร้อยแล้ว');
           this.cdr.detectChanges();
         }, 500);
       },
       error: err => {
+
         console.error('บันทึกออเดอร์ไม่สำเร็จ', err);
-        this.showAlert('payment-failure', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
+        const errorMessage = err.error?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง';
+
+        this.showAlert('payment-failure', errorMessage);
         this.isSubmittingOrder = false;
         this.cdr.detectChanges();
       }
     });
   }
-
 }

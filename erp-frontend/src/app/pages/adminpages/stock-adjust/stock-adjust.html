@@ -35,8 +35,9 @@
         </div>
         }
 
-        <div class="card form-card">
-            <h3>➕ เพิ่มสินค้าใหม่</h3>
+        @if (isAddProductFormVisible) {
+        <div class="card form-card mb-4">
+            <h3>เพิ่มสินค้าใหม่</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <label>ชื่อสินค้า <span class="text-danger">*</span></label>
@@ -63,15 +64,21 @@
                     <input type="text" [(ngModel)]="newProduct.image" class="form-control" placeholder="https://..." />
                 </div>
             </div>
+            
             <div class="form-actions mt-3">
-                <button class="btn-submit" (click)="addProduct()" style="width: auto;">💾 บันทึกสินค้าใหม่</button>
+                <button class="btn-cancel" (click)="cancelAddProductForm()">ยกเลิก</button>
+                <button class="btn-submit-product" (click)="addProduct()" style="width: auto; margin-top: 0;">บันทึกข้อมูล</button>
             </div>
         </div>
+        }
 
         <div class="card table-card">
-            <div class="table-header">
-                <h3>รายการสินค้าทั้งหมด</h3>
-            </div>
+                <div class="table-header">
+                    <h3>รายการสินค้าทั้งหมด</h3>
+                    @if (!isAddProductFormVisible) {
+                        <button class="btn-add" (click)="openAddProductForm()">+ เพิ่มสินค้าใหม่</button>
+                    }
+                </div>
 
             <div class="table-responsive">
                 <table class="admin-table">
@@ -208,7 +215,7 @@
                 <label>หมายเหตุ (ถ้ามี):</label>
                 <textarea class="form-control" rows="2" [(ngModel)]="adjustNote"></textarea>
             </div>
-            <button class="btn-submit" [disabled]="!selectedProduct" (click)="submitAdjustment()">💾 บันทึกการปรับปรุง</button>
+            <button class="btn-submit" [disabled]="!selectedProduct" (click)="submitAdjustment()">บันทึกการปรับปรุง</button>
         </div>
     </div>
     }
@@ -246,7 +253,7 @@
             </div>
             <div class="form-actions mt-3">
                 <button class="btn-cancel" (click)="cancelSupplierForm()">ยกเลิก</button>
-                <button class="btn-submit" style="width: auto; margin-top: 0;" (click)="saveSupplier()">💾 บันทึกข้อมูล</button>
+                <button class="btn-submit-supply" style="width: auto; margin-top: 0;" (click)="saveSupplier()">บันทึกข้อมูล</button>
             </div>
         </div>
         }

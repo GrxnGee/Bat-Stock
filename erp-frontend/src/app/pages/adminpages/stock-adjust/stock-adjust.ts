@@ -24,20 +24,16 @@ export interface Product {
 })
 export class StockAdjust implements OnInit {
 
-  // 🌟 ระบบแท็บ (ตั้งค่าเริ่มต้นเป็นหน้าจัดการสินค้า)
+  constructor(private productService: ProductService, private supplierService: SupplierService, private cdr: ChangeDetectorRef) { }
+
   activeTab: 'PRODUCT' | 'STOCK' | 'SUPPLIER' = 'PRODUCT';
 
-  // =====================
-  // 📦 ตัวแปรสำหรับ PRODUCT LIST (เพิ่มใหม่)
-  // =====================
+
   editingProductId: number | null = null;
   editProductForm: any = {};
   productToDeleteId: number | null = null;
   newProduct = { name: '', price: null as number | null, quantity: null as number | null, barcode: '', image: '', costUnit: null as number | null };
 
-  // =====================
-  // 🔧 ตัวแปรสำหรับ STOCK ADJUST (ของเดิม)
-  // =====================
   products: Product[] = [];
   isLoadingProducts: boolean = false;
   isSubmitting: boolean = false;
@@ -57,34 +53,33 @@ export class StockAdjust implements OnInit {
     { code: 'RETURN_TO_VENDOR', label: 'ส่งคืนผู้จำหน่าย (Return)', type: 'OUT' }
   ];
 
-  // =====================
-  // 🏢 ตัวแปรสำหรับ SUPPLIER (ของเดิม)
-  // =====================
   suppliers: Supplier[] = [];
   isSupplierFormVisible: boolean = false;
   isEditingSupplier: boolean = false;
   supplierForm: Supplier = { name: '', contactPerson: '', phone: '', email: '', address: '', taxId: '' };
   supplierToDeleteId: number | null = null;
 
-  // =====================
-  // ⚠️ ตัวแปรสำหรับ Modal แจ้งเตือน
-  // =====================
   isAlertOpen: boolean = false;
   alertType: string = '';
   alertMessage: string = '';
-  deleteTarget: 'PRODUCT' | 'SUPPLIER' | null = null; // 👈 ตัวบอกว่ากำลังจะลบอะไร
+  deleteTarget: 'PRODUCT' | 'SUPPLIER' | null = null;
 
-  constructor(
-    private productService: ProductService,
-    private supplierService: SupplierService,
-    private cdr: ChangeDetectorRef
-  ) { }
+  isAddProductFormVisible: boolean = false;
+
+  openAddProductForm() {
+    this.newProduct = { name: '', price: null, quantity: null, barcode: '', costUnit: null, image: '' };
+    this.isAddProductFormVisible = true;
+  }
+
+  cancelAddProductForm() {
+    this.isAddProductFormVisible = false;
+  }
 
   ngOnInit(): void {
     this.loadProducts();
   }
 
-  // 🌟 ฟังก์ชันสลับแท็บ
+
   switchTab(tab: 'PRODUCT' | 'STOCK' | 'SUPPLIER') {
     this.activeTab = tab;
     if (tab === 'SUPPLIER' && this.suppliers.length === 0) {
@@ -98,9 +93,7 @@ export class StockAdjust implements OnInit {
     this.isAlertOpen = true;
   }
 
-  // ==========================================
-  // 📦 Logic ของ PRODUCT LIST
-  // ==========================================
+
   get lowStockProducts() {
     return this.products.filter(p => p.quantity <= 5);
   }
@@ -110,7 +103,7 @@ export class StockAdjust implements OnInit {
       this.showAlert('warning', 'กรุณากรอกข้อมูลสินค้าให้ครบถ้วน');
       return;
     }
-    
+
     this.productService.createProduct(this.newProduct).subscribe({
       next: () => {
         this.showAlert('payment-success', 'เพิ่มสินค้าเข้าคลังสำเร็จ!');
@@ -155,9 +148,6 @@ export class StockAdjust implements OnInit {
     this.showAlert('confirm-delete', `คุณแน่ใจหรือไม่ว่าต้องการลบสินค้า: ${name}?`);
   }
 
-  // ==========================================
-  // 🔧 Logic ของ STOCK ADJUST
-  // ==========================================
   loadProducts(): void {
     this.isLoadingProducts = true;
     this.productService.getProducts().subscribe({
@@ -184,7 +174,7 @@ export class StockAdjust implements OnInit {
   }
 
   getFilteredReasons() { return this.reasons.filter(r => r.type === this.adjustType); }
-  
+
   onAdjustTypeChange() {
     const availableReasons = this.getFilteredReasons();
     this.adjustReason = availableReasons.length > 0 ? availableReasons[0].code : '';
@@ -215,9 +205,6 @@ export class StockAdjust implements OnInit {
     });
   }
 
-  // ==========================================
-  // 🏢 Logic ของ SUPPLIER
-  // ==========================================
   loadSuppliers() {
     this.supplierService.getSuppliers().subscribe({
       next: (data) => { this.suppliers = data; this.cdr.detectChanges(); }

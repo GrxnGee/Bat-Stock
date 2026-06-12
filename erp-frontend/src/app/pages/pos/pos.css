@@ -1,4 +1,22 @@
-/* POS Layout */
+/* ============================================== */
+/* สลิปใบเสร็จ */
+/* ============================================== */
+#receipt-slip {
+  display: none;
+}
+
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.th-qty { text-align: right; width: 60px; }
+.th-total { text-align: right; width: 70px; }
+.summary-divider { padding-bottom: 4px; margin-bottom: 4px; }
+.summary-divider-double { padding: 4px 0; margin: 4px 0; }
+.receipt-thanks { text-align: center; margin-top: 10px; }
+.ms-10 { margin-left: 10px; }
+
+/* ============================================== */
+/* Layout ปกติ */
+/* ============================================== */
 .pos-layout {
   display: flex;
   height: 100vh;
@@ -10,6 +28,9 @@
     overflow-y: auto;
 
     h2 { margin-top: 0; }
+    
+    .loading-text { text-align: center; margin-top: 50px; color: #6b7280; }
+    .empty-products { grid-column: 1 / -1; text-align: center; padding: 40px; color: #6b7280; }
 
     .product-grid {
       display: grid;
@@ -27,18 +48,39 @@
         text-align: center;
         border: 2px solid transparent;
 
+        &.opacity-50 { opacity: 0.5; }
+
         &:hover {
           transform: translateY(-4px);
           border-color: #3b82f6;
           box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
 
-        img {
+        .product-img-wrapper {
+          position: relative;
+          display: inline-block;
+        }
+
+        .product-img {
           width: 100px;
           height: 100px;
           object-fit: cover;
           border-radius: 8px;
           margin-bottom: 12px;
+        }
+
+        .promo-badge-float {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background: #ef4444;
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 0.8rem;
+          font-weight: bold;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          z-index: 10;
         }
 
         h3 { margin: 0 0 8px 0; font-size: 1.1rem; }
@@ -117,6 +159,7 @@
             align-items: center; justify-content: center; transition: all 0.2s;
 
             &:hover { background: #f3f4f6; border-color: #9ca3af; }
+            &:disabled { opacity: 0.5; cursor: not-allowed; }
           }
 
           .qty-text {
@@ -150,6 +193,33 @@
       width: 100%;
 
       .total { font-size: 1.2rem; font-weight: bold; margin-bottom: 16px; }
+      .total-label { font-size: 1rem; color: #6b7280; }
+      .net-total-label { color: #2563eb; font-size: 1.4rem; }
+
+      .promo-container {
+        margin-bottom: 16px; padding: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px;
+        
+        .promo-input-group {
+          display: flex; gap: 8px; margin-bottom: 8px;
+
+          .promo-input {
+            flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; text-transform: uppercase; outline: none;
+          }
+
+          .btn-apply-promo {
+            background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;
+            &:disabled { background: #9ca3af; cursor: not-allowed; }
+          }
+        }
+
+        .promo-active-box {
+          display: flex; justify-content: space-between; align-items: center; background: #ecfdf5; padding: 8px; border-radius: 6px; border: 1px solid #a7f3d0;
+          
+          .promo-active-text { color: #047857; font-weight: bold; font-size: 0.9rem; }
+          .promo-discount-text { color: #10b981; font-weight: bold; }
+          .btn-remove-promo { background: none; border: none; color: #ef4444; font-size: 0.75rem; cursor: pointer; text-decoration: underline; padding: 0; }
+        }
+      }
 
       .checkout-btn {
         width: 100%; padding: 16px; background-color: #10b981;
@@ -158,12 +228,25 @@
         transition: background-color 0.2s;
 
         &:hover { background-color: #059669; }
+        &:disabled { background-color: #9ca3af; cursor: not-allowed; }
       }
     }
   }
 }
 
-/* ซ่อนใบเสร็จตอนแสดงผลหน้าเว็บปกติ */
-.print-only {
-  display: none;
+/* ============================================== */
+/* พิมพ์ใบเสร็จ*/
+/* ============================================== */
+@media print {
+    .pos-container,
+    .pos-layout,
+    app-checkout-modal,
+    app-alert-modal {
+        display: none !important;
+    }
+    
+    #receipt-slip, .print-only {
+        display: block !important;
+        background-color: white !important;
+    }
 }
