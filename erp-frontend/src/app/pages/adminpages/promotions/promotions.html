@@ -1,15 +1,14 @@
 <div class="admin-layout">
     <div class="header-section">
-        <h2>🏷️ จัดการส่วนลด & โปรโมชั่น (Promotions)</h2>
-        <p>สร้างโค้ดส่วนลดและกำหนดเงื่อนไขการใช้งานสำหรับหน้าร้าน</p>
+        <h2>🏷️ จัดการส่วนลด & โปรโมชั่น</h2>
     </div>
 
     @if (isFormOpen) {
     <div class="card form-card mb-4">
-        <h3>✨ สร้างโค้ดส่วนลดใหม่</h3>
+        <h3>สร้างโค้ดส่วนลดใหม่</h3>
         <div class="form-grid">
             <div class="form-group">
-                <label>รหัสโค้ดส่วนลด (Code)</label>
+                <label>รหัสโค้ดส่วนลด</label>
                 <input type="text" class="form-control" [(ngModel)]="promoForm.code" placeholder="เช่น NEWYEAR2026">
             </div>
             <div class="form-group">

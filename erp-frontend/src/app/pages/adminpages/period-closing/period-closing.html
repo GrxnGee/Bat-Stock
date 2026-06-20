@@ -1,0 +1,55 @@
+<div class="admin-layout fade-in">
+    <div class="header-section">
+        <h2>🔒 ปิดงวดบัญชี</h2>
+    </div>
+
+    <div class="card table-card mt-4">
+        <h3>📅 รายการรอบบัญชี 12 เดือนล่าสุด</h3>
+        <div class="table-responsive mt-3">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>รอบบัญชี (เดือน / ปี)</th>
+                        <th>สถานะ</th>
+                        <th>ผู้ดำเนินการปิดงบ</th>
+                        <th>วันที่และเวลาทำการปิด</th>
+                        <th class="actions">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (period of periodsList; track period.year + '-' + period.month) {
+                    <tr [ngClass]="{'row-closed': period.status === 'CLOSED'}">
+                        <td><strong>{{ period.monthName }} {{ period.year }}</strong></td>
+                        <td>
+                            @if (period.status === 'OPEN') {
+                                <span class="badge badge-open">🟢 เปิดรับรายการ </span>
+                            } @else {
+                                <span class="badge badge-closed">🔴 ล็อกแล้ว </span>
+                            }
+                        </td>
+                        <td>{{ period.closedBy }}</td>
+                        <td>{{ period.closedAt ? (period.closedAt | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+                        <td class="actions">
+                            @if (period.status === 'OPEN') {
+                                <button class="btn-lock" (click)="confirmClosePeriod(period.year, period.month, period.monthName)">
+                                    🔒 กดปิดงวด
+                                </button>
+                            } @else {
+                                <span class="text-muted" style="font-size: 0.9rem;">✔️ ดำเนินการแล้ว</span>
+                            }
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<app-alert-modal 
+    [isOpen]="isAlertOpen" 
+    [message]="alertMessage" 
+    [type]="alertType" 
+    (confirmed)="confirmAlertAction()"
+    (closed)="isAlertOpen = false">
+</app-alert-modal>

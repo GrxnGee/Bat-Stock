@@ -1,0 +1,178 @@
+.admin-layout {
+    padding: 24px;
+    background-color: #f3f4f6;
+    min-height: 100vh;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.header-section h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+.header-section p {
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.filter-card {
+    display: flex;
+    gap: 20px;
+    background: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    font-weight: bold;
+    color: #4b5563;
+}
+
+.form-control {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+}
+
+.statement-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    padding: 24px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card p {
+    margin: 0 0 8px 0;
+    color: #6b7280;
+    font-weight: bold;
+}
+
+.stat-card h3 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.stat-card.income {
+    border-left: 5px solid #10b981;
+}
+
+.stat-card.income h3 {
+    color: #047857;
+}
+
+.stat-card.expense {
+    border-left: 5px solid #ef4444;
+}
+
+.stat-card.expense h3 {
+    color: #b91c1c;
+}
+
+.stat-card.profit {
+    border-left: 5px solid #3b82f6;
+    background: #eff6ff;
+}
+
+.stat-card.profit h3 {
+    color: #1d4ed8;
+}
+
+.stat-card.profit.loss {
+    border-left: 5px solid #ef4444;
+    background: #fef2f2;
+}
+
+.stat-card.profit.loss h3 {
+    color: #b91c1c;
+}
+
+.table-card {
+    padding: 24px;
+    border-radius: 12px;
+    background: white;
+}
+
+.table-card h3 {
+    margin: 0;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 12px;
+    color: #374151;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.admin-table th {
+    background: #f8fafc;
+    padding: 12px;
+    color: #475569;
+    font-size: 0.9rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.admin-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+.admin-table tr:hover {
+    background-color: #f8fafc;
+}
+
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.badge-income {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.badge-expense {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #9ca3af;
+}
+
+.py-4 {
+    padding: 1.5rem 0;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}

@@ -1,0 +1,85 @@
+<div class="admin-layout fade-in">
+    <div class="header-section">
+        <h2>สมุดบัญชีรายวัน</h2>
+    </div>
+
+    <div class="filter-card">
+        <div class="filter-group">
+            <label>เลือกเดือน:</label>
+            <select class="form-control" [(ngModel)]="selectedMonth" (change)="loadStatement()">
+                @for (m of months; track m.value) {
+                    <option [value]="m.value">{{ m.label }}</option>
+                }
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>เลือกปี:</label>
+            <select class="form-control" [(ngModel)]="selectedYear" (change)="loadStatement()">
+                @for (y of years; track y) {
+                    <option [value]="y">{{ y }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="statement-grid">
+        <div class="card stat-card income">
+            <p>รายรับทั้งหมด (Income)</p>
+            <h3>+ ฿{{ statementData.totalIncome | number:'1.2-2' }}</h3>
+        </div>
+        <div class="card stat-card expense">
+            <p>รายจ่ายทั้งหมด (Expense)</p>
+            <h3>- ฿{{ statementData.totalExpense | number:'1.2-2' }}</h3>
+        </div>
+        <div class="card stat-card profit" [ngClass]="{'loss': statementData.netProfit < 0}">
+            <p>กำไรสุทธิ (Net Profit)</p>
+            <h3>฿{{ statementData.netProfit | number:'1.2-2' }}</h3>
+        </div>
+    </div>
+
+    <div class="card table-card mt-4">
+        <h3>รายการเคลื่อนไหวทางบัญชี (Ledger)</h3>
+        <div class="table-responsive mt-3">
+            @if (isLoading) {
+                <div class="text-center py-4 text-muted">กำลังโหลดข้อมูลบัญชี...</div>
+            } @else {
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>วันที่ทำรายการ</th>
+                            <th>เอกสารอ้างอิง</th>
+                            <th>รายละเอียด</th>
+                            <th>มูลค่าก่อนภาษี</th>
+                            <th>VAT 7%</th>
+                            <th>ยอดสุทธิ (Net)</th>
+                            <th>ประเภท</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (tx of statementData.transactions; track tx.id) {
+                        <tr>
+                            <td>{{ tx.transactionDate | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td><strong>{{ tx.referenceDocument }}</strong></td>
+                            <td>{{ tx.description }}</td>
+                            <td>฿{{ tx.subTotal | number:'1.2-2' }}</td>
+                            <td>฿{{ tx.vatAmount | number:'1.2-2' }}</td>
+                            <td [ngStyle]="{'color': tx.type === 'INCOME' ? '#10b981' : '#ef4444', 'font-weight': 'bold'}">
+                                {{ tx.type === 'INCOME' ? '+' : '-' }} ฿{{ tx.netAmount | number:'1.2-2' }}
+                            </td>
+                            <td>
+                                <span class="badge" [ngClass]="tx.type === 'INCOME' ? 'badge-income' : 'badge-expense'">
+                                    {{ tx.type === 'INCOME' ? 'รายรับ' : 'รายจ่าย' }}
+                                </span>
+                            </td>
+                        </tr>
+                        } @empty {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">ไม่พบรายการเคลื่อนไหวทางบัญชีในเดือนนี้</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

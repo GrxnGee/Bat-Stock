@@ -235,6 +235,72 @@
 }
 
 /* ============================================== */
+/* สไตล์กล่องหลังจากชำระเงินสำเร็จ (Success View) */
+/* ============================================== */
+.order-success-box {
+  text-align: center;
+  padding: 10px 0;
+  width: 100%;
+}
+
+.success-icon {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+}
+
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.btn-action-slip, .btn-action-pdf, .btn-action-xml {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action-slip { background: #f3f4f6; color: #374151; }
+.btn-action-slip:hover { background: #e5e7eb; }
+
+.btn-action-pdf { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+.btn-action-pdf:hover { background: #fca5a5; }
+
+.btn-action-xml { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.btn-action-xml:hover { background: #93c5fd; }
+
+.btn-new-sale {
+  width: 100%;
+  padding: 14px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-new-sale:hover {
+  background-color: #059669;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================== */
 /* พิมพ์ใบเสร็จ*/
 /* ============================================== */
 @media print {

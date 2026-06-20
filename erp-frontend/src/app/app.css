@@ -1,11 +1,12 @@
 .app-layout {
   display: flex;
-  overflow: hidden; 
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .main-content {
   flex: 1;
-  overflow-y: auto; 
+  height: 100vh;  
+  overflow-y: auto;
   background-color: #f3f4f6; 
 }

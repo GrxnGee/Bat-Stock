@@ -1,0 +1,98 @@
+<div class="admin-layout fade-in">
+    <div class="header-section">
+        <h2>บัญชีเจ้าหนี้การค้า</h2>
+        <p>ระบบแจ้งเตือนและติดตามหนี้สินค้างชำระ (บิลเงินเชื่อ) เพื่อไม่ให้กระทบเครดิตธุรกิจ</p>
+    </div>
+
+    <div class="ap-summary-grid">
+        <div class="card ap-card total-debt">
+            <p>ยอดหนี้ค้างชำระทั้งหมด</p>
+            <h3>฿{{ totalDebtAmount | number:'1.2-2' }}</h3>
+        </div>
+        <div class="card ap-card overdue">
+            <p>🚨 เกินกำหนดชำระแล้ว (Overdue)</p>
+            <h3>฿{{ overdueAmount | number:'1.2-2' }}</h3>
+        </div>
+        <div class="card ap-card upcoming">
+            <p>⚠️ ครบกำหนดภายใน 7 วัน</p>
+            <h3>฿{{ upcomingAmount | number:'1.2-2' }}</h3>
+        </div>
+    </div>
+
+    <div class="tab-navigation mt-4">
+        <button class="tab-btn" [class.active]="activeTab === 'UNPAID'" (click)="switchTab('UNPAID')">
+            ⏳ รอดำเนินการชำระเงิน
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'PAID'" (click)="switchTab('PAID')">
+            ✅ ประวัติการชำระเงินแล้ว
+        </button>
+    </div>
+
+    <!-- ตารางแสดงหนี้ -->
+    <div class="card table-card fade-in">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>เลขที่บิล (PO)</th>
+                        <th>บริษัทเจ้าหนี้</th>
+                        <th>กำหนดชำระ (Due Date)</th>
+                        <th>สถานะ / วันคงเหลือ</th>
+                        <th>ยอดที่ต้องจ่าย</th>
+                        <th class="actions" *ngIf="activeTab === 'UNPAID'">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (activeTab === 'UNPAID') {
+                        @for (bill of unpaidBills; track bill.id) {
+                        <tr [class.row-overdue]="bill.daysLeft < 0">
+                            <td><strong>{{ bill.poNumber }}</strong></td>
+                            <td>{{ bill.supplierName }}</td>
+                            <td>{{ bill.dueDate | date:'dd/MM/yyyy' }}</td>
+                            <td>
+                                @if (bill.daysLeft < 0) {
+                                    <span class="status-badge danger">เลยกำหนด {{ mathAbs(bill.daysLeft) }} วัน</span>
+                                } @else if (bill.daysLeft === 0) {
+                                    <span class="status-badge warning">ครบกำหนดวันนี้!</span>
+                                } @else {
+                                    <span class="status-badge safe">เหลือ {{ bill.daysLeft }} วัน</span>
+                                }
+                            </td>
+                            <td style="color: #ef4444; font-weight: bold; font-size: 1.1rem;">
+                                ฿{{ bill.totalAmount | number:'1.2-2' }}
+                            </td>
+                            <td class="actions">
+                                <button class="btn-pay" (click)="confirmPayment(bill.id, bill.supplierName, bill.totalAmount)">
+                                    บันทึกจ่ายเงิน
+                                </button>
+                            </td>
+                        </tr>
+                        } @empty {
+                            <tr><td colspan="6" class="empty-state">ไม่มีหนี้สินค้างชำระ</td></tr>
+                        }
+                    } @else {
+                        @for (bill of paidBills; track bill.id) {
+                        <tr>
+                            <td><strong>{{ bill.poNumber }}</strong></td>
+                            <td>🏢 {{ bill.supplierName }}</td>
+                            <td>{{ bill.dueDate | date:'dd/MM/yyyy' }}</td>
+                            <td><span class="status-badge success">ชำระแล้ว</span></td>
+                            <td style="color: #10b981; font-weight: bold;">฿{{ bill.totalAmount | number:'1.2-2' }}</td>
+                        </tr>
+                        } @empty {
+                            <tr><td colspan="5" class="empty-state">ยังไม่มีประวัติการชำระเงินให้เจ้าหนี้</td></tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<app-alert-modal 
+    [isOpen]="isAlertOpen" 
+    [message]="alertMessage" 
+    [type]="alertType" 
+    (confirmed)="confirmAlertAction()"
+    (closed)="isAlertOpen = false">
+</app-alert-modal>

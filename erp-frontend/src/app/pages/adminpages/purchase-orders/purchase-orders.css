@@ -1,0 +1,265 @@
+/* ใช้โครงสร้าง CSS เดิมจากหน้า admin ทั่วไปผสมเข้ามา */
+.admin-layout {
+    padding: 24px;
+    background-color: #f3f4f6;
+    min-height: 100vh;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.header-section {
+    margin-bottom: 24px;
+}
+
+.header-section h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+.header-section p {
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.tab-navigation {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 12px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 24px;
+    font-size: 1.1rem;
+    color: #6b7280;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.tab-btn.active {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #374151;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.text-danger {
+    color: #ef4444;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.admin-table th {
+    background: #1e293b;
+    color: #ffffff;
+    padding: 16px;
+    font-weight: bold;
+}
+
+.admin-table td {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+    background: #f8fafc;
+}
+
+.admin-table td.actions {
+    text-align: center;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-add {
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.btn-icon.delete:hover {
+    background: #fee2e2;
+}
+
+.empty-state {
+    text-align: center;
+    color: #9ca3af;
+    padding: 40px 0;
+}
+
+.total-summary-box {
+    background: #eff6ff;
+    border: 1px dashed #93c5fd;
+    padding: 20px;
+    text-align: right;
+    border-radius: 8px;
+    font-size: 1.2rem;
+}
+
+.total-summary-box .total-amount {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1d4ed8;
+    margin-left: 10px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-cancel {
+    background-color: #e5e7eb;
+    color: #374151;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-cancel:hover {
+    background-color: #d1d5db;
+}
+
+.btn-submit-product {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-submit-product:hover {
+    background-color: #059669;
+}
+
+/* Status Badges & Action Buttons */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.status-badge.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-badge.success {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-action {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-action.receive {
+    background: #10b981;
+    color: white;
+}
+
+.btn-action.receive:hover {
+    background: #059669;
+}
+
+.btn-action.cancel {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-action.cancel:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

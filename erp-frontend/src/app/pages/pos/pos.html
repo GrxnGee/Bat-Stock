@@ -156,36 +156,52 @@
         </div>
 
         <div class="cart-summary">
-            <div class="total total-label">ยอดรวม: ฿{{ total | number:'1.2-2' }}</div>
+            @if (completedOrder) {
+                <div class="order-success-box fade-in">
+                    <div class="success-icon">✅</div>
+                    <h3 style="color: #10b981; margin: 0 0 10px 0;">ชำระเงินเรียบร้อย!</h3>
+                    <p style="margin: 0; color: #4b5563;">เลขที่บิล: <strong style="color: #1f2937;">{{ completedOrder?.orderNumber }}</strong></p>
+                    
+                    <div class="success-actions">
+                        <button class="btn-action-slip" (click)="printReceipt()">🖨️ พิมพ์สลิปใบเสร็จย่อ (Slip)</button>
+                        <button class="btn-action-pdf" (click)="downloadETaxPdf()">📄 ดาวน์โหลดใบกำกับภาษีเต็มรูป (PDF)</button>
+                        <button class="btn-action-xml" (click)="downloadETaxXml()">📥 ดาวน์โหลด E-Tax (XML)</button>
+                    </div>
 
-            <div class="promo-container">
-                <div class="promo-input-group">
-                    <input type="text" class="promo-input" [(ngModel)]="promoCodeInput" placeholder="ใส่โค้ดส่วนลด (ถ้ามี)..."
-                        [disabled]="total === 0 || (appliedPromo && appliedPromo.isAutoApply)" (keyup.enter)="applyPromoCode()">
-                    <button class="btn-apply-promo"
-                        [disabled]="total === 0 || !promoCodeInput || (appliedPromo && appliedPromo.isAutoApply)" (click)="applyPromoCode()">ใช้โค้ด</button>
+                    <button class="btn-new-sale" (click)="startNewSale()">➕ เริ่มการขายรายการใหม่</button>
+                </div>
+            } @else {
+                <div class="total total-label">ยอดรวม: ฿{{ total | number:'1.2-2' }}</div>
+
+                <div class="promo-container">
+                    <div class="promo-input-group">
+                        <input type="text" class="promo-input" [(ngModel)]="promoCodeInput" placeholder="ใส่โค้ดส่วนลด (ถ้ามี)..."
+                            [disabled]="total === 0 || (appliedPromo && appliedPromo.isAutoApply)" (keyup.enter)="applyPromoCode()">
+                        <button class="btn-apply-promo"
+                            [disabled]="total === 0 || !promoCodeInput || (appliedPromo && appliedPromo.isAutoApply)" (click)="applyPromoCode()">ใช้โค้ด</button>
+                    </div>
+
+                    @if (appliedPromo) {
+                    <div class="promo-active-box">
+                        <div class="promo-active-text">
+                            <span>{{ appliedPromo.isAutoApply ? '⚡ โปรอัตโนมัติ' : '✔️ ใช้โค้ด' }}: {{ appliedPromo.code }}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="promo-discount-text">- ฿{{ discountAmount | number:'1.2-2' }}</div>
+                            @if (!appliedPromo.isAutoApply) {
+                                <button class="btn-remove-promo" (click)="removePromo()">ยกเลิกโค้ด</button>
+                            }
+                        </div>
+                    </div>
+                    }
                 </div>
 
-                @if (appliedPromo) {
-                <div class="promo-active-box">
-                    <div class="promo-active-text">
-                        <span>{{ appliedPromo.isAutoApply ? '⚡ โปรอัตโนมัติ' : '✔️ ใช้โค้ด' }}: {{ appliedPromo.code }}</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="promo-discount-text">- ฿{{ discountAmount | number:'1.2-2' }}</div>
-                        @if (!appliedPromo.isAutoApply) {
-                            <button class="btn-remove-promo" (click)="removePromo()">ยกเลิกโค้ด</button>
-                        }
-                    </div>
-                </div>
-                }
-            </div>
+                <div class="total net-total-label">ยอดสุทธิ: ฿{{ netTotal | number:'1.2-2' }}</div>
 
-            <div class="total net-total-label">ยอดสุทธิ: ฿{{ netTotal | number:'1.2-2' }}</div>
-
-            <button class="checkout-btn" [disabled]="cart.length === 0 || isSubmittingOrder" (click)="openCheckout()">
-                {{ isSubmittingOrder ? '⏳ กำลังบันทึก...' : '💰 ชำระเงิน' }}
-            </button>
+                <button class="checkout-btn" [disabled]="cart.length === 0 || isSubmittingOrder" (click)="openCheckout()">
+                    {{ isSubmittingOrder ? '⏳ กำลังบันทึก...' : '💰 ชำระเงิน' }}
+                </button>
+            }
         </div>
     </div>
 </div>

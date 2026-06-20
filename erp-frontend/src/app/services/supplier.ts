@@ -11,6 +11,9 @@ export interface Supplier {
   email?: string;
   address?: string;
   taxId?: string;
+  leadTimeDays?: number; 
+  orderingCost?: number; 
+  creditDays?: number;
 }
 
 @Injectable({

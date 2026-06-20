@@ -1,24 +1,23 @@
 <div class="admin-layout">
     <div class="header-section">
-        <h2>{{ activeTab === 'PRODUCT' ? '📦 ข้อมูลสินค้าทั้งหมด (Products)' : activeTab === 'STOCK' ? '🔧 ระบบปรับปรุงสต็อก (Stock Adjustment)' : '🏢 จัดการผู้จัดจำหน่าย (Suppliers)' }}</h2>
-        <p>{{ activeTab === 'PRODUCT' ? 'จัดการเพิ่ม ลบ และแก้ไขข้อมูลสินค้าในระบบ' : activeTab === 'STOCK' ? 'สำหรับบันทึกสินค้าชำรุด สูญหาย หรือผลการตรวจนับ' : 'เพิ่มและจัดการรายชื่อบริษัทคู่ค้า / ร้านค้าส่ง' }}</p>
+        <h2>{{ activeTab === 'PRODUCT' ? 'ข้อมูลสินค้าทั้งหมด' : activeTab === 'STOCK' ? ' ระบบปรับปรุงสต็อก' : 'จัดการผู้จัดจำหน่าย' }}</h2>
     </div>
 
     <div class="tab-navigation">
         <button class="tab-btn" [class.active]="activeTab === 'PRODUCT'" (click)="switchTab('PRODUCT')">
-            📦 จัดการสินค้า
+            จัดการสินค้า
         </button>
         <button class="tab-btn" [class.active]="activeTab === 'STOCK'" (click)="switchTab('STOCK')">
-            🔧 ปรับปรุงคลังสต็อก
+            ปรับปรุงคลังสต็อก
         </button>
         <button class="tab-btn" [class.active]="activeTab === 'SUPPLIER'" (click)="switchTab('SUPPLIER')">
-            🏢 คู่ค้า (Supplier)
+            คู่ค้า
         </button>
     </div>
 
     @if (activeTab === 'PRODUCT') {
     <div class="product-container fade-in" style="display: flex; flex-direction: column; gap: 24px;">
-        
+
         @if (lowStockProducts.length > 0) {
         <div class="warning-card">
             <div class="warning-header">
@@ -41,11 +40,13 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label>ชื่อสินค้า <span class="text-danger">*</span></label>
-                    <input type="text" [(ngModel)]="newProduct.name" class="form-control" placeholder="เช่น คีย์บอร์ดเกมมิ่ง" />
+                    <input type="text" [(ngModel)]="newProduct.name" class="form-control"
+                        placeholder="เช่น คีย์บอร์ดเกมมิ่ง" />
                 </div>
                 <div class="form-group">
-                    <label>บาร์โค้ด (SKU) <span class="text-danger">*</span></label>
-                    <input type="text" [(ngModel)]="newProduct.barcode" class="form-control" placeholder="เช่น 885123456789" />
+                    <label>บาร์โค้ด<span class="text-danger">*</span></label>
+                    <input type="text" [(ngModel)]="newProduct.barcode" class="form-control"
+                        placeholder="เช่น 885123456789" />
                 </div>
                 <div class="form-group">
                     <label>ราคาขาย (บาท) <span class="text-danger">*</span></label>
@@ -60,25 +61,45 @@
                     <input type="number" [(ngModel)]="newProduct.quantity" class="form-control" placeholder="0" />
                 </div>
                 <div class="form-group">
+                    <label>จุดสั่งซื้อ</label>
+                    <input type="number" [(ngModel)]="newProduct.safetyStock" class="form-control" placeholder="ชิ้น" />
+                </div>
+                <div class="form-group">
+                    <label>ต้นทุนเก็บรักษา (%)</label>
+                    <input type="number" [(ngModel)]="newProduct.holdingCostPercent" class="form-control"
+                        placeholder="เช่น 10" />
+                </div>
+                <div class="form-group">
                     <label>URL รูปภาพสินค้า</label>
                     <input type="text" [(ngModel)]="newProduct.image" class="form-control" placeholder="https://..." />
                 </div>
+
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>บริษัทผู้จัดจำหน่าย</label>
+                    <select [(ngModel)]="newProduct.supplierId" class="form-control">
+                        <option [ngValue]="null">-- ไม่ระบุ (สั่งจากหลายที่ / สินค้าทั่วไป) --</option>
+                        @for (sup of suppliers; track sup.id) {
+                        <option [ngValue]="sup.id">{{ sup.name }}</option>
+                        }
+                    </select>
+                </div>
             </div>
-            
+
             <div class="form-actions mt-3">
                 <button class="btn-cancel" (click)="cancelAddProductForm()">ยกเลิก</button>
-                <button class="btn-submit-product" (click)="addProduct()" style="width: auto; margin-top: 0;">บันทึกข้อมูล</button>
+                <button class="btn-submit-product" (click)="addProduct()"
+                    style="width: auto; margin-top: 0;">บันทึกข้อมูล</button>
             </div>
         </div>
         }
 
         <div class="card table-card">
-                <div class="table-header">
-                    <h3>รายการสินค้าทั้งหมด</h3>
-                    @if (!isAddProductFormVisible) {
-                        <button class="btn-add" (click)="openAddProductForm()">+ เพิ่มสินค้าใหม่</button>
-                    }
-                </div>
+            <div class="table-header">
+                <h3>รายการสินค้าทั้งหมด</h3>
+                @if (!isAddProductFormVisible) {
+                <button class="btn-add" (click)="openAddProductForm()">+ เพิ่มสินค้าใหม่</button>
+                }
+            </div>
 
             <div class="table-responsive">
                 <table class="admin-table">
@@ -89,7 +110,7 @@
                             <th>ชื่อสินค้า</th>
                             <th>ต้นทุน</th>
                             <th>ราคาขาย</th>
-                            <th>สต็อกคงเหลือ</th>
+                            <th>สต็อก (จุดสั่งซื้อ)</th>
                             <th class="actions">จัดการ</th>
                         </tr>
                     </thead>
@@ -98,55 +119,66 @@
                         <tr>
                             <td>
                                 @if (editingProductId === p.id) {
-                                    <input type="text" [(ngModel)]="editProductForm.image" class="form-control" placeholder="วาง URL รูปภาพ">
+                                <input type="text" [(ngModel)]="editProductForm.image" class="form-control"
+                                    placeholder="วาง URL รูปภาพ">
                                 } @else {
-                                    <img [src]="p.image || 'https://via.placeholder.com/50'" alt="img" class="product-img">
+                                <img [src]="p.image || 'https://via.placeholder.com/50'" alt="img" class="product-img">
                                 }
                             </td>
                             <td>
                                 @if (editingProductId === p.id) {
-                                    <input type="text" [(ngModel)]="editProductForm.barcode" class="form-control" style="width: 120px;">
+                                <input type="text" [(ngModel)]="editProductForm.barcode" class="form-control"
+                                    style="width: 120px;">
                                 } @else {
-                                    <span class="stock-badge">{{ p.barcode }}</span>
+                                <span class="stock-badge">{{ p.barcode }}</span>
                                 }
                             </td>
                             <td>
                                 @if (editingProductId === p.id) {
-                                    <input type="text" [(ngModel)]="editProductForm.name" class="form-control" style="width: 150px;">
+                                <input type="text" [(ngModel)]="editProductForm.name" class="form-control"
+                                    style="width: 150px;">
                                 } @else {
-                                    <strong>{{ p.name }}</strong>
+                                <strong>{{ p.name }}</strong>
                                 }
                             </td>
                             <td>
                                 @if (editingProductId === p.id) {
-                                    <input type="number" [(ngModel)]="editProductForm.costUnit" class="form-control" style="width: 80px;">
+                                <input type="number" [(ngModel)]="editProductForm.costUnit" class="form-control"
+                                    style="width: 80px;">
                                 } @else {
-                                    <span class="text-muted">฿{{ p.costUnit | number:'1.2-2' }}</span>
+                                <span class="text-muted">฿{{ p.costUnit | number:'1.2-2' }}</span>
                                 }
                             </td>
                             <td>
                                 @if (editingProductId === p.id) {
-                                    <input type="number" [(ngModel)]="editProductForm.price" class="form-control" style="width: 80px;">
+                                <input type="number" [(ngModel)]="editProductForm.price" class="form-control"
+                                    style="width: 80px;">
                                 } @else {
-                                    <span class="price-text">฿{{ p.price | number:'1.2-2' }}</span>
+                                <span class="price-text">฿{{ p.price | number:'1.2-2' }}</span>
                                 }
                             </td>
                             <td>
                                 @if (editingProductId === p.id) {
-                                    <span class="stock-badge" style="background-color: #f3f4f6; color: #9ca3af; cursor: not-allowed;" title="การแก้ไขจำนวน ต้องไปที่แท็บ 'ปรับปรุงคลังสต็อก' เท่านั้น">
-                                        🔒 {{ p.quantity }}
-                                    </span>
+                                <div style="display: flex; gap: 4px; align-items: center;">
+                                    🔒 {{ p.quantity }} <br>
+                                    <input type="number" [(ngModel)]="editProductForm.safetyStock" class="form-control"
+                                        style="width: 60px;" placeholder="จุดสั่งซื้อ">
+                                </div>
                                 } @else {
-                                    <span class="stock-badge" [class.low-stock]="p.quantity <= 5">{{ p.quantity }}</span>
+                                <span class="stock-badge" [class.low-stock]="p.quantity <= p.safetyStock">
+                                    {{ p.quantity }} ({{ p.safetyStock }})
+                                </span>
                                 }
                             </td>
                             <td class="actions">
                                 @if (editingProductId !== p.id) {
-                                    <button class="btn-icon edit" (click)="editProductData(p)" title="แก้ไข">✏️</button>
-                                    <button class="btn-icon delete" (click)="confirmDeleteProduct(p.id, p.name)" title="ลบ">🗑️</button>
+                                <button class="btn-icon edit" (click)="editProductData(p)" title="แก้ไข">✏️</button>
+                                <button class="btn-icon delete" (click)="confirmDeleteProduct(p.id, p.name)"
+                                    title="ลบ">🗑️</button>
                                 } @else {
-                                    <button class="btn-icon edit" (click)="saveInlineEditProduct()" title="บันทึก">💾</button>
-                                    <button class="btn-icon delete" (click)="cancelEditProduct()" title="ยกเลิก">❌</button>
+                                <button class="btn-icon edit" (click)="saveInlineEditProduct()"
+                                    title="บันทึก">💾</button>
+                                <button class="btn-icon delete" (click)="cancelEditProduct()" title="ยกเลิก">❌</button>
                                 }
                             </td>
                         </tr>
@@ -192,14 +224,35 @@
                 <label>การดำเนินการ:</label>
                 <div class="radio-group">
                     <label class="radio-label out">
-                        <input type="radio" name="adjustType" value="OUT" [(ngModel)]="adjustType" (change)="onAdjustTypeChange()"> 🔻 ปรับลด (หักออก)
+                        <input type="radio" name="adjustType" value="OUT" [(ngModel)]="adjustType"
+                            (change)="onAdjustTypeChange()"> 🔻 ปรับลด (หักออก)
                     </label>
                     <label class="radio-label in">
-                        <input type="radio" name="adjustType" value="IN" [(ngModel)]="adjustType" (change)="onAdjustTypeChange()"> 🔺 ปรับเพิ่ม (รับเข้า)
+                        <input type="radio" name="adjustType" value="IN" [(ngModel)]="adjustType"
+                            (change)="onAdjustTypeChange()"> 🔺 ปรับเพิ่ม (รับเข้า)
                     </label>
                 </div>
             </div>
-            <div class="form-group">
+
+            @if ((selectedProduct?.lots?.length || 0) > 0) {
+            <div class="form-group"
+                style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-top: 16px;">
+                <label style="color: #0f172a;">📦 เลือกล็อตที่ต้องการปรับปรุง <span class="text-danger">*</span></label>
+                <select class="form-control" [(ngModel)]="adjustLotId">
+                    <option [ngValue]="null">-- กรุณาระบุล็อต --</option>
+                    @for (lot of selectedProduct?.lots; track lot.id) {
+                    @if (adjustType === 'IN' || lot.quantity > 0) {
+                    <option [ngValue]="lot.id">
+                        Lot: {{ lot.lotNumber }} | คงเหลือ: {{ lot.quantity }} ชิ้น
+                        {{ lot.expirationDate ? '(หมด: ' + (lot.expirationDate | date:'dd/MM/yyyy') + ')' : '' }}
+                    </option>
+                    }
+                    }
+                </select>
+            </div>
+            }
+
+            <div class="form-group" style="margin-top: 16px;">
                 <label>จำนวนที่ต้องการปรับ:</label>
                 <input type="number" min="1" class="qty-input" [(ngModel)]="adjustQty">
             </div>
@@ -215,7 +268,8 @@
                 <label>หมายเหตุ (ถ้ามี):</label>
                 <textarea class="form-control" rows="2" [(ngModel)]="adjustNote"></textarea>
             </div>
-            <button class="btn-submit" [disabled]="!selectedProduct" (click)="submitAdjustment()">บันทึกการปรับปรุง</button>
+            <button class="btn-submit" [disabled]="!selectedProduct"
+                (click)="submitAdjustment()">บันทึกการปรับปรุง</button>
         </div>
     </div>
     }
@@ -224,15 +278,17 @@
     <div class="supplier-container fade-in">
         @if (isSupplierFormVisible) {
         <div class="card form-card mb-4">
-            <h3>{{ isEditingSupplier ? '✏️ แก้ไขข้อมูล' : '➕ เพิ่มผู้จัดจำหน่ายใหม่' }}</h3>
+            <h3>{{ isEditingSupplier ? 'แก้ไขข้อมูล' : 'เพิ่มผู้จัดจำหน่ายใหม่' }}</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <label>ชื่อบริษัท / ร้านค้า <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" [(ngModel)]="supplierForm.name" placeholder="บจก. เอบีซี เทรดดิ้ง">
+                    <input type="text" class="form-control" [(ngModel)]="supplierForm.name"
+                        placeholder="บจก. เอบีซี เทรดดิ้ง">
                 </div>
                 <div class="form-group">
-                    <label>ชื่อผู้ติดต่อ (Sales)</label>
-                    <input type="text" class="form-control" [(ngModel)]="supplierForm.contactPerson" placeholder="คุณสมชาย">
+                    <label>ชื่อผู้ติดต่อ</label>
+                    <input type="text" class="form-control" [(ngModel)]="supplierForm.contactPerson"
+                        placeholder="คุณสมชาย">
                 </div>
                 <div class="form-group">
                     <label>เบอร์โทรศัพท์</label>
@@ -240,20 +296,42 @@
                 </div>
                 <div class="form-group">
                     <label>อีเมล</label>
-                    <input type="email" class="form-control" [(ngModel)]="supplierForm.email" placeholder="contact@abc.com">
+                    <input type="email" class="form-control" [(ngModel)]="supplierForm.email"
+                        placeholder="contact@abc.com">
                 </div>
                 <div class="form-group">
-                    <label>เลขประจำตัวผู้เสียภาษี (Tax ID)</label>
-                    <input type="text" class="form-control" [(ngModel)]="supplierForm.taxId" placeholder="01055xxxxxxxx">
+                    <label>เลขประจำตัวผู้เสียภาษี</label>
+                    <input type="text" class="form-control" [(ngModel)]="supplierForm.taxId"
+                        placeholder="01055xxxxxxxx">
                 </div>
+
+                <div class="form-group">
+                    <label>เวลาจัดส่งเฉลี่ย (วัน)</label>
+                    <input type="number" class="form-control" [(ngModel)]="supplierForm.leadTimeDays"
+                        placeholder="เช่น 3">
+                </div>
+                <div class="form-group">
+                    <label>ต้นทุนต่อการสั่งซื้อ 1 บิล (บาท)</label>
+                    <input type="number" class="form-control" [(ngModel)]="supplierForm.orderingCost"
+                        placeholder="เช่น 150">
+                </div>
+                
+                <div class="form-group">
+                    <label>เครดิตเทอม (จำนวนวัน)</label>
+                    <input type="number" class="form-control" [(ngModel)]="supplierForm.creditDays"
+                        placeholder="เช่น 30">
+                </div>
+
                 <div class="form-group full-width">
                     <label>ที่อยู่</label>
-                    <textarea class="form-control" rows="2" [(ngModel)]="supplierForm.address" placeholder="123 หมู่ 4 ต...."></textarea>
+                    <textarea class="form-control" rows="2" [(ngModel)]="supplierForm.address"
+                        placeholder="123 หมู่ 4 ต...."></textarea>
                 </div>
             </div>
             <div class="form-actions mt-3">
                 <button class="btn-cancel" (click)="cancelSupplierForm()">ยกเลิก</button>
-                <button class="btn-submit-supply" style="width: auto; margin-top: 0;" (click)="saveSupplier()">บันทึกข้อมูล</button>
+                <button class="btn-submit-supply" style="width: auto; margin-top: 0;"
+                    (click)="saveSupplier()">บันทึกข้อมูล</button>
             </div>
         </div>
         }
@@ -262,7 +340,7 @@
             <div class="table-header">
                 <h3>รายชื่อผู้จัดจำหน่ายทั้งหมด</h3>
                 @if (!isSupplierFormVisible) {
-                    <button class="btn-add" (click)="openAddSupplierForm()">+ เพิ่ม Supplier</button>
+                <button class="btn-add" (click)="openAddSupplierForm()">+ เพิ่ม Supplier</button>
                 }
             </div>
 
@@ -273,7 +351,8 @@
                             <th>ชื่อบริษัท</th>
                             <th>ผู้ติดต่อ</th>
                             <th>เบอร์โทร</th>
-                            <th>อีเมล</th>
+                            <th>เวลาจัดส่งเฉลี่ย (วัน)</th>
+                            <th>เครดิต (วัน)</th>
                             <th class="actions">จัดการ</th>
                         </tr>
                     </thead>
@@ -283,16 +362,19 @@
                             <td><strong>{{ sup.name }}</strong></td>
                             <td>{{ sup.contactPerson || '-' }}</td>
                             <td>{{ sup.phone || '-' }}</td>
-                            <td>{{ sup.email || '-' }}</td>
+                            <td><span class="stock-badge">{{ sup.leadTimeDays || 0 }} วัน</span></td>
+                            <td><span class="stock-badge" style="background-color: #dbeafe; color: #1e40af;">{{ sup.creditDays || 0 }} วัน</span></td>
                             <td class="actions">
-                                <button class="btn-icon edit" (click)="openEditSupplierForm(sup)" title="แก้ไข">✏️</button>
-                                <button class="btn-icon delete" (click)="confirmDeleteSupplier(sup.id!, sup.name)" title="ลบ">🗑️</button>
+                                <button class="btn-icon edit" (click)="openEditSupplierForm(sup)"
+                                    title="แก้ไข">✏️</button>
+                                <button class="btn-icon delete" (click)="confirmDeleteSupplier(sup.id!, sup.name)"
+                                    title="ลบ">🗑️</button>
                             </td>
                         </tr>
                         }
                         @if (suppliers.length === 0) {
                         <tr>
-                            <td colspan="5" class="empty-state">ไม่มีข้อมูลผู้จัดจำหน่ายในระบบ</td>
+                            <td colspan="6" class="empty-state">ไม่มีข้อมูลผู้จัดจำหน่ายในระบบ</td>
                         </tr>
                         }
                     </tbody>
@@ -303,10 +385,6 @@
     }
 </div>
 
-<app-alert-modal 
-    [isOpen]="isAlertOpen" 
-    [message]="alertMessage" 
-    [type]="alertType" 
-    (confirmed)="confirmAlertAction()"
+<app-alert-modal [isOpen]="isAlertOpen" [message]="alertMessage" [type]="alertType" (confirmed)="confirmAlertAction()"
     (closed)="isAlertOpen = false">
 </app-alert-modal>

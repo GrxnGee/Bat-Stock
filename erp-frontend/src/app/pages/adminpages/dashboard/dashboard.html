@@ -1,7 +1,7 @@
-<div class="admin-layout">
+<div class="admin-layout fade-in">
     <div class="header-section">
-        <h2>ภาพรวมธุรกิจ (Dashboard)</h2>
-        <p>สรุปยอดขายและสินค้าขายดีประจำวัน</p>
+        <h2>ภาพรวมธุรกิจ</h2>
+        <p>สรุปยอดขาย สินค้าขายดี และระบบแนะนำการสั่งซื้อ (EOQ & ROP) อัตโนมัติ</p>
     </div>
 
     <div class="summary-grid">
@@ -21,17 +21,108 @@
 
         <div class="summary-card alert-card">
             <div class="card-info">
-                <p>สินค้าใกล้หมดสต็อก</p>
+                <p>สินค้าคงเหลือต่ำ (10 ชิ้น)</p>
                 <h3>{{ lowStockCount }} รายการ</h3>
             </div>
         </div>
     </div>
 
-    <div class="dashboard-content" style="display: grid; gap: 24px;">
+    @if (!isLoadingSuggestions) {
+    <div class="ai-summary-grid">
+        <div class="card ai-card ai-card-total">
+            <h4 class="ai-card-title">ระบบวิเคราะห์อัจฉริยะทั้งหมด</h4>
+            <h2 class="ai-card-value">{{ suggestions.length }} <span class="ai-card-unit">รายการ</span></h2>
+        </div>
+        
+        <div class="card ai-card ai-card-danger">
+            <h4 class="ai-card-title text-danger-title">ต้องสั่งซื้อด่วน (REORDER)</h4>
+            <h2 class="ai-card-value text-danger-value">{{ reorderItems.length }} <span class="ai-card-unit">รายการ</span></h2>
+        </div>
+
+        <div class="card ai-card ai-card-warning">
+            <h4 class="ai-card-title text-warning-title">เฝ้าระวังใกล้ชนจุด ROP</h4>
+            <h2 class="ai-card-value text-warning-value">{{ warningItems.length }} <span class="ai-card-unit">รายการ</span></h2>
+        </div>
+    </div>
+    }
+
+    <div class="dashboard-content">
+
+        <div class="card table-card">
+            <div class="table-header ai-table-header">
+                <h3 class="ai-table-title">รายการสินค้าแนะนำให้สั่งซื้อ</h3>
+            </div>
+            
+            <div class="table-responsive">
+                @if (isLoadingSuggestions) {
+                    <div class="ai-loading-text">กำลังประมวลผลข้อมูลการขาย 30 วันย้อนหลัง...</div>
+                } @else {
+                    <table class="admin-table">
+                        <thead class="ai-table-head">
+                            <tr>
+                                <th>สินค้า (Supplier)</th>
+                                <th>ยอดขายเฉลี่ย<br><span class="th-subtitle">(ต่อวัน)</span></th>
+                                <th>สต็อกปัจจุบัน</th>
+                                <th>จุดที่ควรสั่ง<br><span class="th-subtitle">(ROP)</span></th>
+                                <th>แนะนำให้สั่งทีละ<br><span class="th-subtitle">(EOQ)</span></th>
+                                <th>สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (item of suggestions; track item.productId) {
+                            <tr [ngClass]="{'ai-row-danger': item.status === 'REORDER_NOW', 'ai-row-warning': item.status === 'WARNING'}">
+                                <td>
+                                    <strong>{{ item.name }}</strong><br>
+                                    <span class="supplier-subtitle">🏬 {{ item.supplierName }}</span>
+                                </td>
+                                <td>{{ item.dailyDemand }} ชิ้น</td>
+                                
+                                <td>
+                                    <span class="stock-current" [ngClass]="{'stock-danger': item.status === 'REORDER_NOW', 'stock-success': item.status !== 'REORDER_NOW'}">
+                                        {{ item.currentStock }}
+                                    </span>
+                                </td>
+
+                                <td class="rop-value">
+                                    {{ item.rop }} ชิ้น
+                                </td>
+
+                                <td>
+                                    @if (item.eoq > 0) {
+                                        <span class="eoq-badge">
+                                            + {{ item.eoq }} ชิ้น
+                                        </span>
+                                    } @else {
+                                        <span class="text-missing-data">ขาดข้อมูลต้นทุนบิล</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (item.status === 'REORDER_NOW') {
+                                        <span class="status-badge-ai status-danger">🚨 สั่งด่วน</span>
+                                    } @else if (item.status === 'WARNING') {
+                                        <span class="status-badge-ai status-warning">⚠️ ใกล้หมด</span>
+                                    } @else {
+                                        <span class="status-badge-ai status-success">✅ ปกติ</span>
+                                    }
+                                </td>
+                            </tr>
+                            }
+                            @if (suggestions.length === 0) {
+                            <tr>
+                                <td colspan="6" class="ai-empty-state">
+                                    ไม่มีข้อมูลสำหรับวิเคราะห์ (ต้องทำการตั้งค่า Supplier, Safety Stock, และ ต้นทุน % ให้สินค้าก่อน)
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
 
         <div class="card top-products-card">
-            <h3>*สินค้าขายดี*</h3>
-
+            <h3>⭐ สินค้าขายดี (Top Products)</h3>
             <div class="product-list">
                 @for (item of topProducts; track item.name; let i = $index) {
                 <div class="product-item">
@@ -76,7 +167,7 @@
                             <th>วันที่-เวลา</th>
                             <th>ยอดรวม (บาท)</th>
                             <th>วิธีชำระเงิน</th>
-                            <th style="text-align: center;">จัดการ</th>
+                            <th class="text-center">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,7 +182,7 @@
                                     {{ order.paymentMethod }}
                                 </span>
                             </td>
-                            <td style="text-align: center;">
+                            <td class="text-center">
                                 <button class="btn-view" (click)="openOrderDetails(order)">ดูรายละเอียด</button>
                             </td>
                         </tr>
@@ -106,11 +197,13 @@
                 </table>
             </div>
         </div>
+    </div>
 
-        <app-alert-modal [isOpen]="isAlertOpen" [message]="alertMessage" [type]="alertType"
-            (closed)="isAlertOpen = false">
-        </app-alert-modal>
+    <app-alert-modal [isOpen]="isAlertOpen" [message]="alertMessage" [type]="alertType"
+        (closed)="isAlertOpen = false">
+    </app-alert-modal>
 
-        <app-sale-history-detail [isOpen]="isDetailModalOpen" [order]="selectedOrder"
-            (closed)="isDetailModalOpen = false">
-        </app-sale-history-detail>
+    <app-sale-history-detail [isOpen]="isDetailModalOpen" [order]="selectedOrder"
+        (closed)="isDetailModalOpen = false">
+    </app-sale-history-detail>
+</div>

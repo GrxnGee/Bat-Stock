@@ -38,27 +38,27 @@ export class Dashboard implements OnInit {
 
   products: Product[] = [];
   isLoadingData: boolean = false;
-
   isAlertOpen: boolean = false;
   alertType: string = '';
   alertMessage: string = '';
-
   todaySales: number = 0;
   todayOrders: number = 0;
   lowStockCount: number = 0;
-
   topProducts: TopProduct[] = [];
   maxSoldQuantity: number = 0;
-
   orders: Order[] = [];
   selectedOrder: any = null;
   isDetailModalOpen: boolean = false;
-
   filteredOrders: Order[] = [];
   searchDate: string = ''; 
 
+  suggestions: any[] = [];
+  isLoadingSuggestions: boolean = true;
+
   ngOnInit(): void {
+
     this.loadDashboardData();
+    this.loadSmartSuggestions();
   }
 
   showAlert(type: string, message: string): void {
@@ -70,7 +70,6 @@ export class Dashboard implements OnInit {
   isToday(dateString: string | Date): boolean {
     const today = new Date();
     const targetDate = new Date(dateString);
-
     return targetDate.getDate() === today.getDate() &&
       targetDate.getMonth() === today.getMonth() &&
       targetDate.getFullYear() === today.getFullYear();
@@ -82,19 +81,13 @@ export class Dashboard implements OnInit {
     this.productService.getProducts().subscribe({
       next: (productsData) => {
         this.products = productsData;
-
-
         this.lowStockCount = this.products.filter(p => p.quantity <= 10).length;
-
 
         this.orderService.getOrders().subscribe({
           next: (orderResponse) => {
-
             const allOrders: Order[] = orderResponse;
-
             this.orders = allOrders;
             this.filteredOrders = allOrders;
-
             this.processSalesData(allOrders);
 
             this.isLoadingData = false;
@@ -118,7 +111,6 @@ export class Dashboard implements OnInit {
   }
 
   processSalesData(allOrders: Order[]): void {
-
     const todaysOrders = allOrders.filter(order => this.isToday(order.createdAt));
 
     this.todayOrders = todaysOrders.length;
@@ -127,7 +119,6 @@ export class Dashboard implements OnInit {
     const productSalesMap = new Map<number, { soldQuantity: number, revenue: number }>();
 
     todaysOrders.forEach(order => {
-
       if (order.items && Array.isArray(order.items)) {
         order.items.forEach(item => {
           const currentData = productSalesMap.get(item.productId) || { soldQuantity: 0, revenue: 0 };
@@ -139,7 +130,6 @@ export class Dashboard implements OnInit {
     });
 
     const topProductsTemp: TopProduct[] = [];
-
     productSalesMap.forEach((salesData, productId) => {
       const productDetail = this.products.find(p => p.id === productId);
       if (productDetail) {
@@ -151,11 +141,9 @@ export class Dashboard implements OnInit {
       }
     });
 
-    // เรียงลำดับ
     topProductsTemp.sort((a, b) => b.soldQuantity - a.soldQuantity);
     this.topProducts = topProductsTemp.slice(0, 5);
 
-    // สำหรับกราฟแท่ง
     if (this.topProducts.length > 0) {
       this.maxSoldQuantity = Math.max(...this.topProducts.map(p => p.soldQuantity));
     } else {
@@ -171,24 +159,20 @@ export class Dashboard implements OnInit {
 
   filterOrdersByDate(): void {
     if (!this.searchDate) {
-
       this.filteredOrders = [...this.orders]; 
       return;
     }
 
     this.filteredOrders = this.orders.filter(order => {
       const orderDate = new Date(order.createdAt);
-      
       const year = orderDate.getFullYear();
       const month = String(orderDate.getMonth() + 1).padStart(2, '0');
       const day = String(orderDate.getDate()).padStart(2, '0');
       const formattedOrderDate = `${year}-${month}-${day}`;
-
       return formattedOrderDate === this.searchDate;
     });
   }
 
-  // การค้นหา
   clearFilter(): void {
     this.searchDate = '';
     this.filteredOrders = [...this.orders];
@@ -200,4 +184,27 @@ export class Dashboard implements OnInit {
     this.cdr.detectChanges();
   }
 
+  loadSmartSuggestions() {
+    this.isLoadingSuggestions = true;
+    this.productService.getSmartSuggestions().subscribe({
+      next: (res) => {
+        this.suggestions = res.data || [];
+        this.isLoadingSuggestions = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('ไม่สามารถโหลดข้อมูลคำนวณได้:', err);
+        this.isLoadingSuggestions = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  get reorderItems() {
+    return this.suggestions.filter(s => s.status === 'REORDER_NOW');
+  }
+
+  get warningItems() {
+    return this.suggestions.filter(s => s.status === 'WARNING');
+  }
 }

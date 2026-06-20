@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -8,33 +9,30 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService implements OnModuleInit {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
+    @InjectRepository(User) private usersRepository: Repository<User>, private configService: ConfigService) { }
 
-  async onModuleInit() {
+
+async onModuleInit() {
     try {
       const count = await this.usersRepository.count();
       if (count === 0) {
-        const hashedPassword = await bcrypt.hash('password123', 10);
+
+        const adminUsername = this.configService.get<string>('INITIAL_ADMIN_USER') || 'master';
+        const adminPassword = this.configService.get<string>('INITIAL_ADMIN_PASS') || 'SuperSecret@Default123!';
+        
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
         const initialUsers = [
           {
-            username: 'master',
+            username: adminUsername,
             password: hashedPassword,
-            name: 'สมชาย เจ้าของร้าน',
+            name: 'ผู้ดูแลระบบสูงสุด',
             role: UserRole.MASTER,
-          },
-          {
-            username: 'cashier',
-            password: hashedPassword,
-            name: 'สมหญิง หน้าร้าน',
-            role: UserRole.CASHIER,
           }
         ];
         
         await this.usersRepository.save(this.usersRepository.create(initialUsers));
-        console.log('✅ ปั๊มบัญชีผู้ใช้เริ่มต้นสำเร็จ! (username: master, cashier)');
+        console.log(`สร้างบัญชีเริ่มต้นสำเร็จ! (Admin: ${adminUsername})`);
       }
     } catch (error) {
       console.log('⏳ กำลังรอ TypeORM สร้างตาราง Users...');
@@ -44,29 +42,26 @@ export class UsersService implements OnModuleInit {
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.usersRepository.findOneBy({ username: createUserDto.username });
     if (existingUser) {
-      throw new BadRequestException('ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว');
+      throw new BadRequestException('ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว กรุณาใช้ชื่ออื่น');
     }
-    
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-  
     const newUser = this.usersRepository.create({
       ...createUserDto,
       password: hashedPassword
     });
-    
-    return this.usersRepository.save(newUser);
+
+    const savedUser = await this.usersRepository.save(newUser);
+
+    delete (savedUser as any).password;
+
+    return savedUser;
   }
 
   async findAll() {
     return this.usersRepository.find({
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-      }
+      select: { id: true, username: true, name: true, role: true, isActive: true, createdAt: true },
+      order: { createdAt: 'DESC' }
     });
   }
 
@@ -75,10 +70,7 @@ export class UsersService implements OnModuleInit {
       where: { id },
       select: { id: true, username: true, name: true, role: true, isActive: true, createdAt: true }
     });
-    
-    if (!user) {
-      throw new NotFoundException(`ไม่พบพนักงาน ID ${id}`);
-    }
+    if (!user) throw new NotFoundException(`ไม่พบพนักงาน ID ${id}`);
     return user;
   }
 
@@ -88,12 +80,19 @@ export class UsersService implements OnModuleInit {
 
   async update(id: number, updateUserDto: any) {
 
-    if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    if (updateUserDto.username) {
+      const exist = await this.usersRepository.findOne({ where: { username: updateUserDto.username } });
+      if (exist && exist.id !== id) throw new BadRequestException('ชื่อผู้ใช้งานนี้ถูกใช้ไปแล้ว');
     }
-    
+
+    if (updateUserDto.password && updateUserDto.password.trim() !== '') {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    } else {
+      delete updateUserDto.password;
+    }
+
     await this.usersRepository.update(id, updateUserDto);
-    return this.findOne(id); 
+    return { success: true, message: 'อัปเดตข้อมูลสำเร็จ' };
   }
 
   async remove(id: number) {

@@ -13,6 +13,10 @@ export interface Product {
   quantity: number;
   image: string;
   costUnit: number;
+  safetyStock: number;       
+  holdingCostPercent: number; 
+  lots?: any[];
+  supplierId?: number | null;
 }
 
 @Component({
@@ -23,16 +27,15 @@ export interface Product {
   styleUrl: './stock-adjust.css'
 })
 export class StockAdjust implements OnInit {
-
   constructor(private productService: ProductService, private supplierService: SupplierService, private cdr: ChangeDetectorRef) { }
 
   activeTab: 'PRODUCT' | 'STOCK' | 'SUPPLIER' = 'PRODUCT';
 
-
   editingProductId: number | null = null;
   editProductForm: any = {};
   productToDeleteId: number | null = null;
-  newProduct = { name: '', price: null as number | null, quantity: null as number | null, barcode: '', image: '', costUnit: null as number | null };
+  
+  newProduct = { name: '', price: 0, quantity: 0, barcode: '', image: '', costUnit: 0, safetyStock: 0, holdingCostPercent: 0, supplierId: null as number | null };
 
   products: Product[] = [];
   isLoadingProducts: boolean = false;
@@ -43,20 +46,22 @@ export class StockAdjust implements OnInit {
   adjustQty: number = 1;
   adjustReason: string = 'DAMAGED';
   adjustNote: string = '';
+  adjustLotId: number | null = null;
 
   reasons = [
-    { code: 'DAMAGED', label: 'สินค้าชำรุด/เสียหาย (Damaged)', type: 'OUT' },
-    { code: 'LOST', label: 'สินค้าสูญหาย (Lost)', type: 'OUT' },
-    { code: 'EXPIRED', label: 'สินค้าหมดอายุ (Expired)', type: 'OUT' },
-    { code: 'STOCK_TAKE_DEFICIT', label: 'ตรวจนับสต็อก: ขาดหาย (Stock Deficit)', type: 'OUT' },
-    { code: 'STOCK_TAKE_SURPLUS', label: 'ตรวจนับสต็อก: เกินมา (Stock Surplus)', type: 'IN' },
-    { code: 'RETURN_TO_VENDOR', label: 'ส่งคืนผู้จำหน่าย (Return)', type: 'OUT' }
+    { code: 'DAMAGED', label: 'สินค้าชำรุด/เสียหาย', type: 'OUT' },
+    { code: 'LOST', label: 'สินค้าสูญหาย', type: 'OUT' },
+    { code: 'EXPIRED', label: 'สินค้าหมดอายุ', type: 'OUT' },
+    { code: 'STOCK_TAKE_DEFICIT', label: 'ตรวจนับสต็อก: ขาดหาย', type: 'OUT' },
+    { code: 'STOCK_TAKE_SURPLUS', label: 'ตรวจนับสต็อก: เกินมา', type: 'IN' },
+    { code: 'RETURN_TO_VENDOR', label: 'ส่งคืนผู้จำหน่าย', type: 'OUT' }
   ];
 
   suppliers: Supplier[] = [];
   isSupplierFormVisible: boolean = false;
   isEditingSupplier: boolean = false;
-  supplierForm: Supplier = { name: '', contactPerson: '', phone: '', email: '', address: '', taxId: '' };
+  
+  supplierForm: Supplier = { name: '', contactPerson: '', phone: '', email: '', address: '', taxId: '', leadTimeDays: 0, orderingCost: 0, creditDays: 0 };
   supplierToDeleteId: number | null = null;
 
   isAlertOpen: boolean = false;
@@ -66,19 +71,19 @@ export class StockAdjust implements OnInit {
 
   isAddProductFormVisible: boolean = false;
 
+  ngOnInit(): void {
+    this.loadProducts();
+    this.loadSuppliers();
+  }
+
   openAddProductForm() {
-    this.newProduct = { name: '', price: null, quantity: null, barcode: '', costUnit: null, image: '' };
+    this.newProduct = { name: '', price: 0, quantity: 0, barcode: '', costUnit: 0, image: '', safetyStock: 0, holdingCostPercent: 0, supplierId: null };
     this.isAddProductFormVisible = true;
   }
 
   cancelAddProductForm() {
     this.isAddProductFormVisible = false;
   }
-
-  ngOnInit(): void {
-    this.loadProducts();
-  }
-
 
   switchTab(tab: 'PRODUCT' | 'STOCK' | 'SUPPLIER') {
     this.activeTab = tab;
@@ -93,14 +98,34 @@ export class StockAdjust implements OnInit {
     this.isAlertOpen = true;
   }
 
-
   get lowStockProducts() {
     return this.products.filter(p => p.quantity <= 5);
   }
 
+  get expiringProducts() {
+    const today = new Date();
+    const thirtyDays = new Date();
+    thirtyDays.setDate(today.getDate() + 30);
+
+    const expiring: any[] = [];
+    this.products.forEach(p => {
+      if (p.lots) {
+        p.lots.forEach(lot => {
+          if (lot.expirationDate && lot.quantity > 0) {
+            const expDate = new Date(lot.expirationDate);
+            if (expDate <= thirtyDays) {
+              expiring.push({ name: p.name, lotNumber: lot.lotNumber, expDate: expDate, lotQty: lot.quantity });
+            }
+          }
+        });
+      }
+    });
+    return expiring;
+  }
+
   addProduct() {
-    if (!this.newProduct.name || !this.newProduct.price || !this.newProduct.barcode || this.newProduct.costUnit === null || this.newProduct.quantity === null) {
-      this.showAlert('warning', 'กรุณากรอกข้อมูลสินค้าให้ครบถ้วน');
+    if (!this.newProduct.name || !this.newProduct.barcode) {
+      this.showAlert('warning', 'กรุณากรอกชื่อสินค้าและบาร์โค้ดให้ครบถ้วน');
       return;
     }
 
@@ -108,10 +133,14 @@ export class StockAdjust implements OnInit {
       next: () => {
         this.showAlert('payment-success', 'เพิ่มสินค้าเข้าคลังสำเร็จ!');
         this.loadProducts();
-        this.newProduct = { name: '', price: null, quantity: null, barcode: '', costUnit: null, image: '' };
+        this.newProduct = { name: '', price: 0, quantity: 0, barcode: '', costUnit: 0, image: '', safetyStock: 0, holdingCostPercent: 0, supplierId: null };
+        this.isAddProductFormVisible = false;
         this.cdr.detectChanges();
       },
-      error: () => this.showAlert('error', 'ไม่สามารถเพิ่มสินค้าได้')
+      error: (err) => {
+        console.error(err);
+        this.showAlert('error', 'ไม่สามารถเพิ่มสินค้าได้ (ตรวจสอบบาร์โค้ดว่าซ้ำหรือไม่)');
+      }
     });
   }
 
@@ -121,7 +150,7 @@ export class StockAdjust implements OnInit {
   }
 
   saveInlineEditProduct() {
-    if (!this.editProductForm.name || !this.editProductForm.price || !this.editProductForm.barcode || this.editProductForm.quantity === null || this.editProductForm.costUnit === null) {
+    if (!this.editProductForm.name || !this.editProductForm.barcode) {
       this.showAlert('warning', 'กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
     }
@@ -165,12 +194,14 @@ export class StockAdjust implements OnInit {
   searchProduct() {
     const found = this.products.find(p => p.barcode === this.searchQuery || p.name.includes(this.searchQuery));
     this.selectedProduct = found || null;
+    this.adjustLotId = null;
     if (!this.selectedProduct) this.showAlert('warning', 'ไม่พบสินค้าในระบบ');
   }
 
   selectProduct(product: Product) {
     this.selectedProduct = product;
     this.searchQuery = product.barcode;
+    this.adjustLotId = null;
   }
 
   getFilteredReasons() { return this.reasons.filter(r => r.type === this.adjustType); }
@@ -178,27 +209,53 @@ export class StockAdjust implements OnInit {
   onAdjustTypeChange() {
     const availableReasons = this.getFilteredReasons();
     this.adjustReason = availableReasons.length > 0 ? availableReasons[0].code : '';
+    this.adjustLotId = null;
   }
 
   submitAdjustment() {
     if (!this.selectedProduct) return;
     if (this.adjustQty <= 0) { this.showAlert('warning', 'กรุณาระบุจำนวนที่ต้องการปรับปรุงให้ถูกต้อง'); return; }
 
+    if ((this.selectedProduct.lots?.length || 0) > 0 && !this.adjustLotId) {
+       this.showAlert('warning', 'สินค้านี้มีระบบล็อต (Batch) กรุณาเลือกล็อตที่ต้องการหัก/เพิ่มสต็อก'); 
+       return;
+    }
+
     let newQuantity = this.selectedProduct.quantity;
-    if (this.adjustType === 'IN') newQuantity += this.adjustQty;
-    else {
+    let lotAdjustQty = 0;
+
+    if (this.adjustType === 'IN') {
+      newQuantity += this.adjustQty;
+      lotAdjustQty = this.adjustQty;
+    } else {
       if (this.adjustQty > this.selectedProduct.quantity) { this.showAlert('warning', 'จำนวนที่ต้องการหักออก มีมากกว่าสต็อกคงเหลือ!'); return; }
+      
+      if (this.adjustLotId) {
+         const selectedLot = this.selectedProduct.lots?.find(l => l.id === this.adjustLotId);
+         if (selectedLot && this.adjustQty > selectedLot.quantity) {
+             this.showAlert('warning', `ล็อต ${selectedLot.lotNumber} มีของแค่ ${selectedLot.quantity} ชิ้น ไม่พอให้ตัดทิ้ง!`);
+             return;
+         }
+      }
+
       newQuantity -= this.adjustQty;
+      lotAdjustQty = -this.adjustQty;
     }
 
     const totalCostChanged = this.adjustQty * this.selectedProduct.costUnit;
     this.isSubmitting = true;
 
-    this.productService.updateProduct(this.selectedProduct.id, { quantity: newQuantity }).subscribe({
+    const payload: any = { quantity: newQuantity };
+    if (this.adjustLotId) {
+        payload.adjustLotId = this.adjustLotId;
+        payload.adjustQty = lotAdjustQty;
+    }
+
+    this.productService.updateProduct(this.selectedProduct.id, payload).subscribe({
       next: () => {
         this.showAlert('payment-success', `ปรับปรุงสต็อกสำเร็จ! สต็อกล่าสุดคือ ${newQuantity} ชิ้น (มูลค่าทุนเปลี่ยนแปลง: ฿${totalCostChanged.toLocaleString()})`);
         this.selectedProduct!.quantity = newQuantity;
-        this.selectedProduct = null; this.searchQuery = ''; this.adjustQty = 1; this.adjustNote = ''; this.isSubmitting = false;
+        this.selectedProduct = null; this.searchQuery = ''; this.adjustQty = 1; this.adjustNote = ''; this.adjustLotId = null; this.isSubmitting = false;
         this.loadProducts();
       },
       error: () => { this.showAlert('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล'); this.isSubmitting = false; }
@@ -213,7 +270,7 @@ export class StockAdjust implements OnInit {
 
   openAddSupplierForm() {
     this.isEditingSupplier = false;
-    this.supplierForm = { name: '', contactPerson: '', phone: '', email: '', address: '', taxId: '' };
+    this.supplierForm = { name: '', contactPerson: '', phone: '', email: '', address: '', taxId: '', leadTimeDays: 0, orderingCost: 0, creditDays: 0 };
     this.isSupplierFormVisible = true;
   }
 

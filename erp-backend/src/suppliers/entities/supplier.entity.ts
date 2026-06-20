@@ -23,6 +23,15 @@ export class Supplier {
   @Column({ nullable: true })
   taxId: string; 
 
+  @Column({ type: 'int', default: 0 })
+  leadTimeDays: number; 
+
+  @Column('decimal', { default: 0 })
+  orderingCost: number;
+
+  @Column({ type: 'int', default: 0 })
+  creditDays: number; 
+
   @CreateDateColumn()
   createdAt: Date;
 

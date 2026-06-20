@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,8 +18,7 @@ export class LoginComponent {
   isLoading: boolean = false;
   errorMessage: string | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {
-    
+  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef) {
     if (this.authService.isLoggedIn()) {
       this.redirectByUserRole();
     }
@@ -38,10 +37,12 @@ export class LoginComponent {
       next: (response) => {
         this.isLoading = false;
         this.redirectByUserRole();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.message || '❌ เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
+         this.cdr.detectChanges();
       }
     });
   }
@@ -52,13 +53,15 @@ export class LoginComponent {
     if (role === 'CASHIER') {
       this.router.navigate(['/pos']);
     } else if (role === 'MASTER' || role === 'SUPER_ADMIN') {
-
       this.router.navigate(['/dashboard']); 
     } else if (role === 'STOCK_ADMIN') {
-
       this.router.navigate(['/stock-adjust']);
+    } else if (role === 'ACCOUNTANT') {
+
+      this.router.navigate(['/accounting']); 
     } else {
-      this.router.navigate(['/login']);
+
+      this.router.navigate(['/dashboard']);
     }
   }
 }

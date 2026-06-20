@@ -1,0 +1,227 @@
+.admin-layout {
+    padding: 24px;
+    background-color: #f3f4f6;
+    min-height: 100vh;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.header-section {
+    margin-bottom: 24px;
+}
+
+.header-section h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+.header-section p {
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.mb-4 {
+    margin-bottom: 24px;
+}
+
+.mt-3 {
+    margin-top: 16px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #374151;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.text-danger {
+    color: #ef4444;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-cancel {
+    background-color: #e5e7eb;
+    color: #374151;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-cancel:hover {
+    background-color: #d1d5db;
+}
+
+.btn-submit {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background-color: #059669;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+
+.table-header h3 {
+    margin: 0;
+    color: #374151;
+}
+
+.btn-add {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-add:hover {
+    background: #2563eb;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.admin-table th {
+    background: #1e293b;
+    color: #ffffff;
+    padding: 16px;
+    font-weight: bold;
+}
+
+.admin-table td {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+    background: #f8fafc;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.btn-icon.edit:hover {
+    background: #dbeafe;
+}
+
+.btn-icon.delete:hover {
+    background: #fee2e2;
+}
+
+/* 🌟 สไตล์แถบสีตามตำแหน่งงาน (Role Badges) */
+.role-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.role-badge.master {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.role-badge.super_admin {
+    background: #f3e8ff;
+    color: #6b21a8;
+}
+
+.role-badge.cashier {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.role-badge.stock_admin {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.role-badge.accountant {
+    background: #ccfbf1;
+    color: #0f766e;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

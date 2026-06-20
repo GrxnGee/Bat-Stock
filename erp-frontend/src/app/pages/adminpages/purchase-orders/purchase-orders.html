@@ -1,0 +1,200 @@
+<div class="admin-layout">
+    <div class="header-section">
+        <h2>ใบสั่งซื้อสินค้า</h2>
+    </div>
+
+    <div class="tab-navigation">
+        <button class="tab-btn" [class.active]="activeTab === 'LIST'" (click)="switchTab('LIST')">
+            ประวัติการสั่งซื้อทั้งหมด
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'CREATE'" (click)="switchTab('CREATE')">
+            สร้างใบสั่งซื้อใหม่
+        </button>
+    </div>
+
+    @if (activeTab === 'CREATE') {
+    <div class="card form-card fade-in">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>เลือกผู้จัดจำหน่าย<span class="text-danger">*</span></label>
+                <select class="form-control" [(ngModel)]="newPO.supplierId" (change)="onSupplierChange()">
+                    <option [ngValue]="null">-- เลือกบริษัทคู่ค้า --</option>
+                    @for (sup of suppliers; track sup.id) {
+                        <option [ngValue]="sup.id">{{ sup.name }}</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>วันที่คาดว่าจะส่งมอบ (ถ้ามี)</label>
+                <input type="date" class="form-control" [(ngModel)]="newPO.expectedDeliveryDate">
+            </div>
+            <div class="form-group">
+                <label>ประเภทการชำระเงิน <span class="text-danger">*</span></label>
+                <select class="form-control" [(ngModel)]="newPO.paymentType">
+                    <option value="CASH">เงินสด / โอนทันที</option>
+                    <option value="CREDIT">ซื้อเงินเชื่อ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>หักภาษี ณ ที่จ่าย (WHT)</label>
+                <select class="form-control" [(ngModel)]="newPO.whtRate">
+                    <option [ngValue]="0">ไม่หัก (0%) - ซื้อสินค้าทั่วไป</option>
+                    <option [ngValue]="1">หัก 1% - ค่าขนส่ง</option>
+                    <option [ngValue]="3">หัก 3% - ค่าบริการ / จ้างทำของ</option>
+                    <option [ngValue]="5">หัก 5% - ค่าเช่า</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>เลขที่ใบกำกับภาษี (จากคู่ค้า)</label>
+                <input type="text" class="form-control" [(ngModel)]="newPO.supplierTaxInvoiceNo" placeholder="เว้นว่างได้ถ้าร้านไม่มี VAT">
+            </div>
+            <div class="form-group">
+                <label>วันที่ในใบกำกับภาษี</label>
+                <input type="date" class="form-control" [(ngModel)]="newPO.supplierTaxInvoiceDate">
+            </div>
+        </div>
+
+        <h3 style="margin-top: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">รายการสินค้าที่ต้องการสั่ง</h3>
+        
+        <div class="table-responsive">
+            <table class="admin-table mt-3" style="min-width: 900px;">
+                <thead>
+                    <tr>
+                        <th>สินค้า <span class="text-danger">*</span></th>
+                        <th style="width: 140px;">เลขล็อต (ถ้ามี)</th>
+                        <th style="width: 150px;">วันหมดอายุ (ถ้ามี)</th>
+                        <th style="width: 100px;">จำนวน <span class="text-danger">*</span></th>
+                        <th style="width: 120px;">ต้นทุน/ชิ้น (฿) <span class="text-danger">*</span></th>
+                        <th style="width: 120px;">รวม (฿)</th>
+                        <th style="width: 60px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (item of newPO.items; track $index) {
+                    <tr>
+                        <td>
+                            <select class="form-control" [(ngModel)]="item.productId" (change)="onProductSelect(item)">
+                                <option [ngValue]="null">{{ newPO.supplierId ? '-- เลือกสินค้า --' : 'โปรดเลือก Supplier ก่อน' }}</option>
+                                @for (p of filteredProducts; track p.id) {
+                                    <option [ngValue]="p.id">{{ p.barcode }} | {{ p.name }}</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" [(ngModel)]="item.lotNumber" placeholder="เช่น LOT-01">
+                        </td>
+                        <td>
+                            <input type="date" class="form-control" [(ngModel)]="item.expirationDate">
+                        </td>
+                        <td>
+                            <input type="number" min="1" class="form-control" [(ngModel)]="item.quantity">
+                        </td>
+                        <td>
+                            <input type="number" min="0" class="form-control" [(ngModel)]="item.unitCost">
+                        </td>
+                        <td style="font-weight: bold; color: #2563eb; vertical-align: middle;">
+                            {{ (item.quantity * item.unitCost) | number:'1.2-2' }}
+                        </td>
+                        <td class="actions">
+                            <button class="btn-icon delete" (click)="removeItemRow($index)">🗑️</button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <button class="btn-add mt-3" style="background: #3b82f6;" (click)="addItemRow()">+ เพิ่มรายการสินค้า</button>
+
+        <div class="total-summary-box mt-4">
+            <span>ยอดรวมใบสั่งซื้อทั้งสิ้น:</span>
+            <span class="total-amount">฿{{ calculateTotal() | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="form-actions mt-3">
+            <button class="btn-cancel" (click)="switchTab('LIST')">ยกเลิก</button>
+            <button class="btn-submit-product" style="width: auto; margin-top: 0;" (click)="submitPO()">💾 บันทึกและออกใบสั่งซื้อ</button>
+        </div>
+    </div>
+    }
+
+    @if (activeTab === 'LIST') {
+    <div class="card table-card fade-in">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>เลขที่ใบสั่งซื้อ</th>
+                        <th>วันที่สั่ง</th>
+                        <th>คู่ค้า</th>
+                        <th>ยอดรวม</th>
+                        <th>การชำระเงิน</th>
+                        <th>สถานะใบสั่งซื้อ</th>
+                        <th class="actions">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (po of purchaseOrders; track po.id) {
+                    <tr>
+                        <td>
+                            <strong>{{ po.poNumber }}</strong>
+                            @if (po.supplierTaxInvoiceNo) {
+                                <br><span style="font-size: 0.85rem; color: #6b7280;">บิลผู้ขาย: {{ po.supplierTaxInvoiceNo }}</span>
+                            }
+                            @if (po.whtRate > 0) {
+                                <br><span style="font-size: 0.85rem; color: #c026d3; font-weight: bold;">(หักภาษี {{ po.whtRate }}%)</span>
+                            }
+                        </td>
+                        <td>{{ po.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                        <td>{{ po.supplierName }}</td>
+                        <td style="color: #2563eb; font-weight: bold;">฿{{ po.totalAmount | number:'1.2-2' }}</td>
+                        
+                        <td>
+                            <span class="badge" [ngClass]="po.paymentType === 'CASH' ? 'badge-cash' : 'badge-transfer'">
+                                {{ po.paymentType === 'CASH' ? 'เงินสด' : 'เงินเชื่อ' }}
+                            </span><br>
+                            @if (po.paymentStatus === 'UNPAID') { <span style="color: #ef4444; font-size: 0.85rem; font-weight: bold;">(ยังไม่จ่าย)</span> }
+                            @if (po.paymentStatus === 'PAID') { <span style="color: #10b981; font-size: 0.85rem; font-weight: bold;">(จ่ายแล้ว)</span> }
+                        </td>
+
+                        <td>
+                            @if (po.status === 'PENDING') { <span class="status-badge warning">⏳ รอรับสินค้า</span> }
+                            @if (po.status === 'COMPLETED') { <span class="status-badge success">✅ รับเข้าสต็อกแล้ว</span> }
+                            @if (po.status === 'CANCELLED') { <span class="status-badge danger">❌ ยกเลิก</span> }
+                        </td>
+                        <td class="actions" style="align-items: center; flex-wrap: wrap;">
+                            <button class="btn-action" style="background: #e0f2fe; color: #0369a1;" 
+                                    (click)="printPO(po.poNumber)" title="พิมพ์ใบสั่งซื้อ PDF">
+                                🖨️ PO
+                            </button>
+
+                            @if (po.whtRate > 0) {
+                                <button class="btn-action" style="background: #fdf4ff; color: #c026d3; border: 1px solid #e879f9;" 
+                                        (click)="printWHT(po.poNumber)" title="พิมพ์ใบหัก ณ ที่จ่าย 50 ทวิ">
+                                    🖨️ 50 ทวิ
+                                </button>
+                            }
+
+                            @if (po.status === 'PENDING') {
+                                <button class="btn-action receive" (click)="confirmStatusUpdate(po.id, 'COMPLETED', 'รับของเข้าสต็อก (สต็อกจะถูกบวกเพิ่มอัตโนมัติ)')" title="รับของเข้าสต็อก">📦 กดรับของ</button>
+                                <button class="btn-action cancel" (click)="confirmStatusUpdate(po.id, 'CANCELLED', 'ยกเลิกใบสั่งซื้อนี้')" title="ยกเลิก">❌</button>
+                            }
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr><td colspan="7" class="empty-state">ยังไม่มีรายการสั่งซื้อสินค้า</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>
+
+<app-alert-modal 
+    [isOpen]="isAlertOpen" 
+    [message]="alertMessage" 
+    [type]="alertType" 
+    (confirmed)="confirmAlertAction()"
+    (closed)="isAlertOpen = false">
+</app-alert-modal>

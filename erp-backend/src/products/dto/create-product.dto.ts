@@ -1,5 +1,4 @@
-import { IsNumber, IsNotEmpty, IsString } from 'class-validator';
-
+import { IsNumber, IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class CreateProductDto {
 
@@ -18,11 +17,25 @@ export class CreateProductDto {
     @IsNotEmpty()
     @IsString()
     barcode: string;
+    
+    @IsOptional()
     @IsString()
     image?: string;
 
     @IsNotEmpty()
     @IsNumber()
     costUnit: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    safetyStock: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    holdingCostPercent: number;
+
+    @IsOptional()
+    @IsNumber()
+    supplierId?: number;
 
 }

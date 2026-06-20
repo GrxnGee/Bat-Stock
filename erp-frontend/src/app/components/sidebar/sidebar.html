@@ -12,8 +12,28 @@
   </div>
 
   <ul class="nav-links" style="flex: 1; overflow-y: auto;">
-    @for (item of menuItems; track item.title) {
-      @if (hasAccess(item.roles)) {
+    
+    @if (isMaster) {
+      @for (group of masterMenuGroups; track group.name) {
+        
+        @if (!isCollapsed) {
+          <li class="category-title">{{ group.name }}</li>
+        } @else {
+          <li class="category-divider"></li>
+        }
+
+        @for (item of group.items; track item.title) {
+          <li>
+            <a [routerLink]="item.route" routerLinkActive="active" [title]="isCollapsed ? item.title : ''">
+              <span class="icon">{{ item.icon }}</span>
+              <span class="text" *ngIf="!isCollapsed">{{ item.title }}</span>
+            </a>
+          </li>
+        }
+      }
+    } 
+    @else {
+      @for (item of flatAccessibleMenuItems; track item.title) {
         <li>
           <a [routerLink]="item.route" routerLinkActive="active" [title]="isCollapsed ? item.title : ''">
             <span class="icon">{{ item.icon }}</span>
@@ -22,6 +42,7 @@
         </li>
       }
     }
+
   </ul>
 
   <div class="sidebar-footer" [class.collapsed]="isCollapsed">
@@ -29,7 +50,7 @@
        <span class="user-name">👤 {{ authService.getUserName() }}</span>
     </div>
     <button class="btn-logout" (click)="onLogout()" [title]="isCollapsed ? 'ออกจากระบบ' : ''">
-       <span class="icon">🚪</span>
+       <span class="icon">⏻ </span>
        <span class="text" *ngIf="!isCollapsed">ออกจากระบบ</span>
     </button>
  </div>

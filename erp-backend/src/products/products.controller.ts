@@ -22,6 +22,11 @@ export class ProductsController {
     return this.productsService.findOne(+id);
   }
 
+  @Get('suggestions/smart-reorder')
+  getSmartSuggestions() {
+    return this.productsService.getSmartPurchasingSuggestions();
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(+id, updateProductDto);

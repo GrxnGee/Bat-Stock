@@ -10,6 +10,30 @@
             </div>
         </div>
     </div>
+    } @else if (type === 'confirm-receive') {
+    <div class="modal-overlay">
+        <div class="modal-box alert-box">
+            <div class="alert-icon">📦</div>
+            <h2>ยืนยันรับสินค้าเข้าคลัง</h2>
+            <p>{{ message }}</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeAlert()">ปิด</button>
+                <button class="btn-confirm" (click)="confirmAction()">ยืนยันรับสินค้า</button>
+            </div>
+        </div>
+    </div>
+    } @else if (type === 'confirm-cancel-po') {
+    <div class="modal-overlay">
+        <div class="modal-box alert-box">
+            <div class="alert-icon">⚠️</div>
+            <h2>ยืนยันยกเลิกการสั่งซื้อ</h2>
+            <p>{{ message }}</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeAlert()">กลับ</button>
+                <button class="btn-danger" (click)="confirmAction()">ยืนยันยกเลิก</button>
+            </div>
+        </div>
+    </div>
     } @else if (type === 'confirm-delete') {
     <div class="modal-overlay">
         <div class="modal-box alert-box">
@@ -18,7 +42,7 @@
             <p>{{ message }}</p>
             <div class="modal-actions">
                 <button class="btn-cancel" (click)="closeAlert()">ยกเลิก</button>
-                <button class="btn-danger" (click)="confirmAction()">ลบสินค้า</button>
+                <button class="btn-danger" (click)="confirmAction()">ลบข้อมูล</button>
             </div>
         </div>
     </div>
@@ -31,6 +55,18 @@
             <div class="modal-actions">
                 <button class="btn-cancel" (click)="closeAlert()">ยกเลิก</button>
                 <button class="btn-danger" (click)="confirmAction()">ออกจากระบบ</button>
+            </div>
+        </div>
+    </div>
+    } @else if (type === 'close-period') {
+    <div class="modal-overlay">
+        <div class="modal-box alert-box">
+                <div class="alert-icon">🔒</div>
+            <h2>ยืนยันการปิดงวดบัญชี</h2>
+            <p style="white-space: pre-line;">{{ message }}</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeAlert()">ยกเลิก</button>
+                <button class="btn-danger" style="background-color: #ef4444;" (click)="confirmAction()">ยืนยันปิดงวด</button>
             </div>
         </div>
     </div>

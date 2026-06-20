@@ -10,6 +10,10 @@ import { SuppliersModule } from './suppliers/suppliers.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module';
+import { PurchaseOrderItemModule } from './purchase-order-item/purchase-order-item.module';
+import { AccountingModule } from './accounting/accounting.module';
+import { TaxesModule } from './taxes/taxes.module';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true, }),
@@ -20,7 +24,11 @@ import { AuthModule } from './auth/auth.module';
     SuppliersModule,
     PromotionsModule,
     UsersModule,
-    AuthModule],
+    AuthModule,
+    PurchaseOrdersModule,
+    PurchaseOrderItemModule,
+    AccountingModule,
+    TaxesModule],
   controllers: [AppController],
   providers: [AppService],
 })

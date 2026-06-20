@@ -1,0 +1,89 @@
+<div class="admin-layout">
+    <div class="header-section">
+        <h2>👥 จัดการพนักงาน</h2>
+    </div>
+
+    @if (isFormVisible) {
+    <div class="card form-card fade-in mb-4">
+        <h3>{{ isEditing ? 'แก้ไขข้อมูลพนักงาน' : 'เพิ่มพนักงานใหม่' }}</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>ชื่อ-นามสกุล <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="userForm.name" placeholder="เช่น นายสมชาย ขยันขาย">
+            </div>
+            <div class="form-group">
+                <label>ชื่อเข้าใช้งาน (Username) <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="userForm.username" placeholder="ใช้สำหรับล็อกอิน">
+            </div>
+            <div class="form-group">
+                <label>รหัสผ่าน (Password) <span *ngIf="!isEditing" class="text-danger">*</span></label>
+                <input type="password" class="form-control" [(ngModel)]="userForm.password" 
+                       [placeholder]="isEditing ? 'เว้นว่างไว้ถ้าไม่ต้องการเปลี่ยนรหัสผ่าน' : 'ตั้งรหัสผ่านให้พนักงาน'">
+            </div>
+            <div class="form-group">
+                <label>ตำแหน่ง / สิทธิ์การเข้าถึง <span class="text-danger">*</span></label>
+                <select class="form-control" [(ngModel)]="userForm.role">
+                    @for (role of roles; track role.value) {
+                        <option [value]="role.value">{{ role.label }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-actions mt-3">
+            <button class="btn-cancel" (click)="cancelForm()">ยกเลิก</button>
+            <button class="btn-submit" (click)="saveUser()">บันทึกข้อมูล</button>
+        </div>
+    </div>
+    }
+
+    <div class="card table-card fade-in">
+        <div class="table-header">
+            <h3>รายชื่อผู้มีสิทธิ์เข้าถึงระบบทั้งหมด</h3>
+            @if (!isFormVisible) {
+                <button class="btn-add" (click)="openAddForm()">+ เพิ่มพนักงานใหม่</button>
+            }
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ชื่อพนักงาน</th>
+                        <th>Username (ชื่อล็อกอิน)</th>
+                        <th>สิทธิ์การใช้งาน (Role)</th>
+                        <th>วันที่เพิ่มเข้าระบบ</th>
+                        <th class="actions">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (user of users; track user.id) {
+                    <tr>
+                        <td><strong>{{ user.name }}</strong></td>
+                        <td>{{ user.username }}</td>
+                        <td>
+                            <span class="role-badge {{ user.role.toLowerCase() }}">
+                                {{ user.role }}
+                            </span>
+                        </td>
+                        <td>{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+                        <td class="actions">
+                            <button class="btn-icon edit" (click)="openEditForm(user)" title="แก้ไข">✏️</button>
+                            @if (user.username !== 'master') {
+                                <button class="btn-icon delete" (click)="confirmDelete(user.id, user.name)" title="ลบ">🗑️</button>
+                            }
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<app-alert-modal 
+    [isOpen]="isAlertOpen" 
+    [message]="alertMessage" 
+    [type]="alertType" 
+    (confirmed)="confirmAlertAction()"
+    (closed)="isAlertOpen = false">
+</app-alert-modal>
