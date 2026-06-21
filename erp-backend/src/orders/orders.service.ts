@@ -7,19 +7,17 @@ import { ProductLot } from '../products/entities/product-lot.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OmiseService } from '../omise/omise.service';
-
-// 🌟 Import บัญชี
 import { AccountingService } from '../accounting/accounting.service';
 import { LedgerType } from '../accounting/entities/ledger.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
-    @InjectRepository(Order) private ordersRepository: Repository<Order>, 
-    @InjectRepository(Product) private productsRepository: Repository<Product>, 
-    private omiseService: OmiseService, 
+    @InjectRepository(Order) private ordersRepository: Repository<Order>,
+    @InjectRepository(Product) private productsRepository: Repository<Product>,
+    private omiseService: OmiseService,
     private dataSource: DataSource,
-    private accountingService: AccountingService 
+    private accountingService: AccountingService
   ) { }
 
   async createPromptPayCharge(amount: number) {
@@ -46,7 +44,6 @@ export class OrdersService {
   }
 
   async create(createOrderDto: CreateOrderDto) {
-
     await this.accountingService.validatePeriodIsOpen(new Date());
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -64,8 +61,8 @@ export class OrdersService {
         const updateResult = await queryRunner.manager
           .createQueryBuilder()
           .update(Product)
-          .set({ quantity: () => `quantity - ${item.quantity}` }) 
-          .where('id = :id AND quantity >= :reqQty', { id: item.productId, reqQty: item.quantity }) 
+          .set({ quantity: () => `quantity - ${item.quantity}` })
+          .where('id = :id AND quantity >= :reqQty', { id: item.productId, reqQty: item.quantity })
           .execute();
 
         if (updateResult.affected === 0) {
@@ -74,30 +71,33 @@ export class OrdersService {
         }
 
         const availableLots = await queryRunner.manager.find(ProductLot, {
-            where: { productId: item.productId, quantity: MoreThan(0) }, 
-            order: { expirationDate: { direction: 'ASC', nulls: 'LAST' }, receivedAt: 'ASC' }
+          where: { productId: item.productId, quantity: MoreThan(0) },
+          order: { expirationDate: { direction: 'ASC', nulls: 'LAST' }, receivedAt: 'ASC' }
         });
 
         let remainingQty = item.quantity!;
         for (const lot of availableLots) {
-            if (remainingQty <= 0) break; 
-            if (lot.quantity >= remainingQty) {
-                lot.quantity -= remainingQty;
-                remainingQty = 0;
-            } else {
-                remainingQty -= lot.quantity;
-                lot.quantity = 0;
-            }
-            await queryRunner.manager.save(ProductLot, lot);
+          if (remainingQty <= 0) break;
+          if (lot.quantity >= remainingQty) {
+            lot.quantity -= remainingQty;
+            remainingQty = 0;
+          } else {
+            remainingQty -= lot.quantity;
+            lot.quantity = 0;
+          }
+          await queryRunner.manager.save(ProductLot, lot);
         }
       }
 
-      // 🌟 คำนวณ VAT (ใช้ || 0 เพื่อแก้ Error undefined ของ TypeScript)
       const vatRate = Number(process.env.DEFAULT_VAT_RATE) || 7;
-      const totalAmount = createOrderDto.totalAmount || 0; 
+
+      const totalAmount = createOrderDto.totalAmount || 0;
+      const discountAmount = createOrderDto.discountAmount || 0;
+      const promoCode = createOrderDto.promoCode || undefined;
+
       const vatAmount = Number((totalAmount * vatRate / (100 + vatRate)).toFixed(2));
       const subTotal = Number((totalAmount - vatAmount).toFixed(2));
-      
+
       const newOrderNumber = await this.generateOrderNumber(queryRunner.manager);
 
       const orderToSave = queryRunner.manager.create(Order, {
@@ -105,6 +105,8 @@ export class OrdersService {
         totalAmount: totalAmount,
         subTotal: subTotal,
         vatAmount: vatAmount,
+        discountAmount: discountAmount,
+        promoCode: promoCode,
         paymentMethod: createOrderDto.payment!.method,
         items: createOrderDto.items!.map((item) => ({
           productId: item.productId,
@@ -122,7 +124,7 @@ export class OrdersService {
         savedOrder.orderNumber,
         subTotal,
         vatAmount,
-        0, 
+        0,
         totalAmount,
         'รายรับจากการขาย POS'
       );

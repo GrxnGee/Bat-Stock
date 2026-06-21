@@ -17,15 +17,15 @@ export class ProductsService {
     try {
       const count = await this.productsRepository.count();
       if (count === 0) {
-        console.log('✅ ฐานข้อมูล Product ว่างเปล่า (พร้อมสำหรับเพิ่มข้อมูลจริง)');
+        console.log('✅ ฐานข้อมูล Product ว่างเปล่า');
       }
     } catch (error) {
-      console.log('⏳ กำลังรอ TypeORM สร้างตาราง Product...');
+      console.log('⏳ กำลังรอตาราง Product');
     }
   }
 
  async getSmartPurchasingSuggestions() {
-    console.log('🧠 กำลังประมวลผลข้อมูลการสั่งซื้ออัจฉริยะ (EOQ & ROP)...');
+    console.log('⏳ กำลังประมวลผล (EOQ & ROP)');
 
     const products = await this.productsRepository.find({ relations: { supplier: true } });
     const suggestions: any[] = [];

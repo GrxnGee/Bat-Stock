@@ -1,7 +1,6 @@
 <div class="admin-layout fade-in">
     <div class="header-section">
         <h2>บัญชีเจ้าหนี้การค้า</h2>
-        <p>ระบบแจ้งเตือนและติดตามหนี้สินค้างชำระ (บิลเงินเชื่อ) เพื่อไม่ให้กระทบเครดิตธุรกิจ</p>
     </div>
 
     <div class="ap-summary-grid">
@@ -10,11 +9,11 @@
             <h3>฿{{ totalDebtAmount | number:'1.2-2' }}</h3>
         </div>
         <div class="card ap-card overdue">
-            <p>🚨 เกินกำหนดชำระแล้ว (Overdue)</p>
+            <p>เกินกำหนดชำระแล้ว (Overdue)</p>
             <h3>฿{{ overdueAmount | number:'1.2-2' }}</h3>
         </div>
         <div class="card ap-card upcoming">
-            <p>⚠️ ครบกำหนดภายใน 7 วัน</p>
+            <p>ครบกำหนดภายใน 7 วัน</p>
             <h3>฿{{ upcomingAmount | number:'1.2-2' }}</h3>
         </div>
     </div>

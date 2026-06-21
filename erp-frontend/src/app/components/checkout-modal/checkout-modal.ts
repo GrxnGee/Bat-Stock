@@ -41,7 +41,7 @@ export class CheckoutModalComponent {
     return this.receivedAmount - this.total;
   }
 
-  // 👇 เปลี่ยนฟังก์ชันนี้ใหม่
+
   selectPaymentMethod(method: 'CASH' | 'TRANSFER') {
     this.paymentMethod = method;
 
@@ -122,6 +122,8 @@ export class CheckoutModalComponent {
       slipReference: this.slipReference,
       changeAmount: this.changeAmount,
     });
+
+    this.closeCheckout();
   }
 
   ngOnDestroy() {

@@ -46,8 +46,9 @@ export class Poscomponent implements OnInit {
   lastPaymentData: PaymentData | null = null;
   isLoadingProducts: boolean = false;
   isSubmittingOrder: boolean = false;
-  
-  completedOrder: any = null; 
+
+  completedOrder: any = null;
+  isCompletingOrder: boolean = false;
 
   ngOnInit(): void {
     this.loadProducts();
@@ -84,12 +85,17 @@ export class Poscomponent implements OnInit {
 
   addProduct(product: PosProduct) {
     const existingItem = this.cart.find(item => item.id === product.id);
+
     if (existingItem && existingItem.selectedQuantity >= product.quantity) {
       this.showAlert('warning', `ไม่สามารถเพิ่มได้ "${product.name}" มีจำนวนคงเหลือเพียง ${product.quantity} ชิ้น`);
       return;
     }
     if (!existingItem && product.quantity <= 0) {
       this.showAlert('warning', `สินค้า "${product.name}" หมดสต็อกแล้ว`);
+      return;
+    }
+    if (this.isCompletingOrder === true) {
+      this.showAlert('warning', `กรุณากดเริ่มทำรายการใหม่`);
       return;
     }
     this.cartService.addProduct(product);
@@ -176,7 +182,7 @@ export class Poscomponent implements OnInit {
     } else {
       this.promoService.checkAutoPromotion(this.cart).subscribe({
         next: (result) => {
-          if (result) { this.appliedPromo = result; this.discountAmount = result.calculatedDiscount; this.promoCodeInput = ''; } 
+          if (result) { this.appliedPromo = result; this.discountAmount = result.calculatedDiscount; this.promoCodeInput = ''; }
           else { this.appliedPromo = null; this.discountAmount = 0; this.promoCodeInput = ''; }
         },
         error: () => { this.appliedPromo = null; this.discountAmount = 0; this.promoCodeInput = ''; }
@@ -214,6 +220,7 @@ export class Poscomponent implements OnInit {
     this.appliedPromo = null;
     this.discountAmount = 0;
     this.promoCodeInput = '';
+    this.isCompletingOrder = false;
     this.loadProducts();
     this.cdr.detectChanges();
   }
@@ -243,9 +250,9 @@ export class Poscomponent implements OnInit {
       next: response => {
         this.isCheckoutOpen = false;
         this.isSubmittingOrder = false;
-        
-        this.completedOrder = response.order; 
-        
+
+        this.completedOrder = response.order;
+        this.isCompletingOrder = true;
         this.showAlert('payment-success', 'ชำระยอดสุทธิ ' + this.netTotal.toLocaleString() + ' บาท เรียบร้อยแล้ว');
         this.cdr.detectChanges();
       },

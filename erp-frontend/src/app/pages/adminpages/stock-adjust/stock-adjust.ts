@@ -13,8 +13,8 @@ export interface Product {
   quantity: number;
   image: string;
   costUnit: number;
-  safetyStock: number;       
-  holdingCostPercent: number; 
+  safetyStock: number;
+  holdingCostPercent: number;
   lots?: any[];
   supplierId?: number | null;
 }
@@ -34,7 +34,7 @@ export class StockAdjust implements OnInit {
   editingProductId: number | null = null;
   editProductForm: any = {};
   productToDeleteId: number | null = null;
-  
+
   newProduct = { name: '', price: 0, quantity: 0, barcode: '', image: '', costUnit: 0, safetyStock: 0, holdingCostPercent: 0, supplierId: null as number | null };
 
   products: Product[] = [];
@@ -60,7 +60,7 @@ export class StockAdjust implements OnInit {
   suppliers: Supplier[] = [];
   isSupplierFormVisible: boolean = false;
   isEditingSupplier: boolean = false;
-  
+
   supplierForm: Supplier = { name: '', contactPerson: '', phone: '', email: '', address: '', taxId: '', leadTimeDays: 0, orderingCost: 0, creditDays: 0 };
   supplierToDeleteId: number | null = null;
 
@@ -71,9 +71,22 @@ export class StockAdjust implements OnInit {
 
   isAddProductFormVisible: boolean = false;
 
+  viewingLotProduct: Product | null = null;
+  isLotModalOpen: boolean = false;
+
   ngOnInit(): void {
     this.loadProducts();
     this.loadSuppliers();
+  }
+
+  openLotDetails(product: Product) {
+    this.viewingLotProduct = product;
+    this.isLotModalOpen = true;
+  }
+
+  closeLotDetails() {
+    this.isLotModalOpen = false;
+    this.viewingLotProduct = null;
   }
 
   openAddProductForm() {
@@ -155,7 +168,11 @@ export class StockAdjust implements OnInit {
       return;
     }
 
-    this.productService.updateProduct(this.editingProductId!, this.editProductForm).subscribe({
+    const payload = { ...this.editProductForm };
+    delete payload.lots;
+    delete payload.supplier;
+
+    this.productService.updateProduct(this.editingProductId!, payload).subscribe({
       next: () => {
         this.showAlert('payment-success', 'อัปเดตสินค้าสำเร็จ!');
         this.loadProducts();
@@ -217,8 +234,8 @@ export class StockAdjust implements OnInit {
     if (this.adjustQty <= 0) { this.showAlert('warning', 'กรุณาระบุจำนวนที่ต้องการปรับปรุงให้ถูกต้อง'); return; }
 
     if ((this.selectedProduct.lots?.length || 0) > 0 && !this.adjustLotId) {
-       this.showAlert('warning', 'สินค้านี้มีระบบล็อต (Batch) กรุณาเลือกล็อตที่ต้องการหัก/เพิ่มสต็อก'); 
-       return;
+      this.showAlert('warning', 'สินค้านี้มีระบบล็อต (Batch) กรุณาเลือกล็อตที่ต้องการหัก/เพิ่มสต็อก');
+      return;
     }
 
     let newQuantity = this.selectedProduct.quantity;
@@ -229,13 +246,13 @@ export class StockAdjust implements OnInit {
       lotAdjustQty = this.adjustQty;
     } else {
       if (this.adjustQty > this.selectedProduct.quantity) { this.showAlert('warning', 'จำนวนที่ต้องการหักออก มีมากกว่าสต็อกคงเหลือ!'); return; }
-      
+
       if (this.adjustLotId) {
-         const selectedLot = this.selectedProduct.lots?.find(l => l.id === this.adjustLotId);
-         if (selectedLot && this.adjustQty > selectedLot.quantity) {
-             this.showAlert('warning', `ล็อต ${selectedLot.lotNumber} มีของแค่ ${selectedLot.quantity} ชิ้น ไม่พอให้ตัดทิ้ง!`);
-             return;
-         }
+        const selectedLot = this.selectedProduct.lots?.find(l => l.id === this.adjustLotId);
+        if (selectedLot && this.adjustQty > selectedLot.quantity) {
+          this.showAlert('warning', `ล็อต ${selectedLot.lotNumber} มีของแค่ ${selectedLot.quantity} ชิ้น ไม่พอให้ตัดทิ้ง!`);
+          return;
+        }
       }
 
       newQuantity -= this.adjustQty;
@@ -247,8 +264,8 @@ export class StockAdjust implements OnInit {
 
     const payload: any = { quantity: newQuantity };
     if (this.adjustLotId) {
-        payload.adjustLotId = this.adjustLotId;
-        payload.adjustQty = lotAdjustQty;
+      payload.adjustLotId = this.adjustLotId;
+      payload.adjustQty = lotAdjustQty;
     }
 
     this.productService.updateProduct(this.selectedProduct.id, payload).subscribe({

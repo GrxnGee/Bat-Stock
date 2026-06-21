@@ -41,7 +41,6 @@ export class Sidebar implements OnInit {
 
     { title: 'บัญชีเจ้าหนี้ (AP)', route: '/accounts-payable', icon: 'AP', roles: ['MASTER', 'ACCOUNTANT'], category: 'ระบบบัญชีและการเงิน' },
     { title: 'สมุดรายวัน (Income/Expense)', route: '/accounting', icon: 'GL', roles: ['MASTER', 'ACCOUNTANT'], category: 'ระบบบัญชีและการเงิน' },
-    { title: 'ตั้งค่าภาษี & E-Tax', route: '/tax-settings', icon: 'TAX', roles: ['MASTER'], category: 'ระบบบัญชีและการเงิน' },
     { title: 'ปิดงวดบัญชี (Close Period)', route: '/period-closing', icon: 'LOCK', roles: ['MASTER', 'ACCOUNTANT'], category: 'ระบบบัญชีและการเงิน' },
 
     { title: 'โปรโมชั่น', route: '/promotions', icon: 'PRO', roles: ['MASTER'], category: 'ตั้งค่าระบบ' },

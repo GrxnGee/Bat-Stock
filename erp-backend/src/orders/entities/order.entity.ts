@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
 import { OrderItem } from './order-item.entity';
 
+
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
@@ -14,6 +15,12 @@ export class Order {
 
   @Column('decimal', { default: 0 })
   vatAmount: number;
+
+  @Column('decimal', { default: 0 })
+  discountAmount: number; 
+
+  @Column({ nullable: true })
+  promoCode: string;
 
   @Column('decimal')
   totalAmount: number;

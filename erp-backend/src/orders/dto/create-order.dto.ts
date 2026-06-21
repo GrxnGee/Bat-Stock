@@ -1,4 +1,4 @@
-import { IsNumber, IsArray, IsString, ValidateNested, IsNotEmpty, IsPositive, ArrayNotEmpty, Min } from 'class-validator';
+import { IsNumber, IsArray, IsString, ValidateNested, IsNotEmpty, IsPositive, ArrayNotEmpty, Min, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 
@@ -43,4 +43,12 @@ export class CreateOrderDto {
     @IsNumber()
     @Min(1)
     totalAmount?: number;
+
+    @IsNumber()
+    @IsOptional()
+    discountAmount?: number;
+
+    @IsString()
+    @IsOptional()
+    promoCode?: string;
 }

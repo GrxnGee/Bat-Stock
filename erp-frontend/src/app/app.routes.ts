@@ -11,6 +11,5 @@ export const routes: Routes = [
   { path: 'accounts-payable', loadComponent: () => import('./pages/adminpages/accounts-payable/accounts-payable').then(m => m.AccountsPayableComponent) },
   { path: 'users', loadComponent: () => import('./pages/adminpages/users/users').then(m => m.UsersComponent) },
   { path: 'accounting', loadComponent: () => import('./pages/adminpages/accounting/accounting').then(m => m.AccountingComponent) },
-  { path: 'tax-settings', loadComponent: () => import('./pages/adminpages/tax-settings/tax-settings').then(m => m.TaxSettings) },
   { path: 'period-closing', loadComponent: () => import('./pages/adminpages/period-closing/period-closing').then(m => m.PeriodClosing) },
 ];

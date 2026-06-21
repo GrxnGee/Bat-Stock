@@ -32,18 +32,24 @@ export class CartService {
     return this.http.get<PosProduct[]>(this.apiUrl+`/products`);
   }
 
-  submitOrder(paymentData: PaymentData): Observable<any> {
+  submitOrder(paymentData: any) {
     const orderPayload = {
       items: this.cart.map(item => ({
         productId: item.id,
         quantity: item.selectedQuantity,
         price: item.price
       })),
-      payment: paymentData,
-      totalAmount: this.total
+      payment: {
+        method: paymentData.method,
+        receivedAmount: paymentData.receivedAmount,
+        slipReference: paymentData.slipReference
+      },
+      totalAmount: paymentData.totalAmount || this.total,
+      discountAmount: paymentData.discountAmount || 0,
+      promoCode: paymentData.promoCode || undefined
     };
 
-    return this.http.post(this.apiUrl+`/orders`, orderPayload);
+    return this.http.post<any>(`${this.apiUrl}/orders`, orderPayload);
   }
 
   addProduct(product: PosProduct) {

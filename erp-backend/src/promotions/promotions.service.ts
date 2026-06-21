@@ -14,7 +14,7 @@ export class PromotionsService {
     try {
       const newPromo = this.promotionsRepository.create(createPromotionDto);
       return await this.promotionsRepository.save(newPromo);
-    } catch (error) {
+    } catch (error : any) {
 
       if (error.code === 'ER_DUP_ENTRY' || error.code === 'SQLITE_CONSTRAINT' || error.message.includes('unique')) {
         throw new BadRequestException('รหัสโค้ดส่วนลดนี้มีอยู่ในระบบแล้ว กรุณาใช้รหัสอื่น');
@@ -87,6 +87,7 @@ export class PromotionsService {
     if (!cart || cart.length === 0) return null;
 
     const now = new Date();
+
     // ดึงเฉพาะโปรโมชั่นที่เปิดใช้งาน และติ๊กเป็น "ทำงานอัตโนมัติ"
     const autoPromos = await this.promotionsRepository.find({
       where: { isActive: true, isAutoApply: true }
@@ -135,7 +136,7 @@ export class PromotionsService {
       applicableProductId: bestPromo.applicableProductId,
       calculatedDiscount: maxDiscount,
       netTotal: totalAmount - maxDiscount,
-      isAutoApply: true // แนบค่าไปบอกหน้าบ้านว่าเป็นออโต้
+      isAutoApply: true
     };
   }
 

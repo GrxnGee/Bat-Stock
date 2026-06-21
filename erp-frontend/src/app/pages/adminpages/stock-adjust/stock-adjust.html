@@ -1,6 +1,7 @@
 <div class="admin-layout">
     <div class="header-section">
-        <h2>{{ activeTab === 'PRODUCT' ? 'ข้อมูลสินค้าทั้งหมด' : activeTab === 'STOCK' ? ' ระบบปรับปรุงสต็อก' : 'จัดการผู้จัดจำหน่าย' }}</h2>
+        <h2>{{ activeTab === 'PRODUCT' ? 'ข้อมูลสินค้าทั้งหมด' : activeTab === 'STOCK' ? ' ระบบปรับปรุงสต็อก' :
+            'จัดการผู้จัดจำหน่าย' }}</h2>
     </div>
 
     <div class="tab-navigation">
@@ -110,7 +111,7 @@
                             <th>ชื่อสินค้า</th>
                             <th>ต้นทุน</th>
                             <th>ราคาขาย</th>
-                            <th>สต็อก (จุดสั่งซื้อ)</th>
+                            <th>สต็อก</th>
                             <th class="actions">จัดการ</th>
                         </tr>
                     </thead>
@@ -157,19 +158,26 @@
                                 <span class="price-text">฿{{ p.price | number:'1.2-2' }}</span>
                                 }
                             </td>
+
                             <td>
                                 @if (editingProductId === p.id) {
                                 <div style="display: flex; gap: 4px; align-items: center;">
                                     🔒 {{ p.quantity }} <br>
-                                    <input type="number" [(ngModel)]="editProductForm.safetyStock" class="form-control"
-                                        style="width: 60px;" placeholder="จุดสั่งซื้อ">
                                 </div>
                                 } @else {
-                                <span class="stock-badge" [class.low-stock]="p.quantity <= p.safetyStock">
-                                    {{ p.quantity }} ({{ p.safetyStock }})
-                                </span>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <span class="stock-badge" [class.low-stock]="p.quantity <= p.safetyStock">
+                                        {{ p.quantity }}
+                                    </span>
+                                    <button class="btn-icon"
+                                        style="font-size: 0.8rem; background: #e2e8f0; padding: 2px 8px; margin: 0;"
+                                        (click)="openLotDetails(p)">
+                                        📦 ดูล็อต
+                                    </button>
+                                </div>
                                 }
                             </td>
+
                             <td class="actions">
                                 @if (editingProductId !== p.id) {
                                 <button class="btn-icon edit" (click)="editProductData(p)" title="แก้ไข">✏️</button>
@@ -315,7 +323,7 @@
                     <input type="number" class="form-control" [(ngModel)]="supplierForm.orderingCost"
                         placeholder="เช่น 150">
                 </div>
-                
+
                 <div class="form-group">
                     <label>เครดิตเทอม (จำนวนวัน)</label>
                     <input type="number" class="form-control" [(ngModel)]="supplierForm.creditDays"
@@ -363,7 +371,8 @@
                             <td>{{ sup.contactPerson || '-' }}</td>
                             <td>{{ sup.phone || '-' }}</td>
                             <td><span class="stock-badge">{{ sup.leadTimeDays || 0 }} วัน</span></td>
-                            <td><span class="stock-badge" style="background-color: #dbeafe; color: #1e40af;">{{ sup.creditDays || 0 }} วัน</span></td>
+                            <td><span class="stock-badge" style="background-color: #dbeafe; color: #1e40af;">{{
+                                    sup.creditDays || 0 }} วัน</span></td>
                             <td class="actions">
                                 <button class="btn-icon edit" (click)="openEditSupplierForm(sup)"
                                     title="แก้ไข">✏️</button>
@@ -384,6 +393,42 @@
     </div>
     }
 </div>
+
+@if (isLotModalOpen && viewingLotProduct) {
+<div class="modal-overlay">
+    <div class="modal-content fade-in" style="max-width: 600px;">
+        <h3>📦 รายละเอียดล็อต: {{ viewingLotProduct.name }}</h3>
+        <table class="admin-table mt-3">
+            <thead>
+                <tr>
+                    <th>หมายเลขล็อต</th>
+                    <th>คงเหลือ</th>
+                    <th>วันหมดอายุ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (lot of viewingLotProduct.lots; track lot.id) {
+                <tr>
+                    <td><strong>Lot: {{ lot.lotNumber }}</strong></td>
+                    <td><span class="stock-badge">{{ lot.quantity }} ชิ้น</span></td>
+                    <td [class.text-danger]="lot.expirationDate">
+                        {{ lot.expirationDate ? (lot.expirationDate | date:'dd/MM/yyyy') : 'ไม่มีวันหมดอายุ' }}
+                    </td>
+                </tr>
+                }
+                @if (!viewingLotProduct.lots || viewingLotProduct.lots.length === 0) {
+                <tr>
+                    <td colspan="3" class="empty-state">ไม่มีข้อมูลล็อตสำหรับสินค้านี้</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        <div class="form-actions mt-4">
+            <button class="btn-submit" (click)="closeLotDetails()">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+</div>
+}
 
 <app-alert-modal [isOpen]="isAlertOpen" [message]="alertMessage" [type]="alertType" (confirmed)="confirmAlertAction()"
     (closed)="isAlertOpen = false">
